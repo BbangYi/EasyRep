@@ -44,7 +44,7 @@ python3 -m venv .venv-vision
 .venv-vision/bin/python -m behavior_recorder.vision doctor
 ```
 
-위 설치만으로 모든 실험 백엔드가 준비되지는 않습니다. 결합 모델의 추가 의존성은 `requirements-hybrid.txt`와 모델별 설정을 확인하세요. **가중치·학습 데이터·로컬 평가 영상은 이 저장소에 포함되지 않습니다.** [모델 목록과 보관 안내](../models/README.md)를 참고하세요.
+위 설치만으로 모든 실험 백엔드가 준비되지는 않습니다. 결합 모델의 추가 의존성은 `requirements-hybrid.txt`와 모델별 설정을 확인하세요. **일부 소형 학습 계수만 포함하며, 대형 가중치·학습 데이터·로컬 평가 영상은 제외합니다.** [모델 목록과 보관 안내](../models/README.md)를 참고하세요.
 
 기존 Mac 실행 환경에서는 `zsh "Start Vision Lab.command"`로 관찰 실험실, `zsh "Start Appearance Journal.command"`로 관찰 일지를 엽니다. 수집기의 POSIX 파일 잠금 때문에 Windows 직접 수집은 지원하지 않습니다. 모델 학습용 Windows 환경과 수집기 실행 환경은 구분합니다.
 
@@ -78,6 +78,6 @@ python3 -m unittest discover -s tests -v
 - [상세 사용법·입력 계약·이전 실험 기록](REFERENCE.md)
 - [모델·학습 파이프라인](AI_PIPELINE.md) · [AI 검증 기록](AI_VERIFICATION.md)
 - [관찰 일지·색 특징·탈피 관련 구현](APPEARANCE.md)
-- [수집기 검증 기록](VERIFICATION.md) · [모델 저장 기록](MODEL_STORAGE.md)
+- [수집기 검증 기록](VERIFICATION.md) · [대표 모델 결과](../models/RESULTS.md)
 
 상세 문서의 `data/` 링크는 원래 로컬 연구 산출물을 가리키며, 공개 저장소만으로 열리지 않습니다. 과거 실험의 수치·미구현 표시는 해당 기록 시점에 한정됩니다.

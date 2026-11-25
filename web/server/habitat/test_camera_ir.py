@@ -52,7 +52,8 @@ class CameraIntegrationTests(TestCase):
             self.assertEqual(self.client.get("/api/enclosures/camera-test/camera/").status_code, 404)
             self.cage.edge_cage_id = "CAGE-001"
             self.cage.save()
-            outsider = User.objects.create_user(username="camera-outsider", display_name="외부", role="user")
+            other_store = Store.objects.create(name="다른 매장", edge_site_id="STORE-002")
+            outsider = User.objects.create_user(username="camera-outsider", display_name="외부", role="user", store=other_store)
             self.client.force_login(outsider)
             self.assertEqual(self.client.get("/api/enclosures/camera-test/camera/").status_code, 404)
             self.client.logout()
@@ -75,6 +76,15 @@ class CameraIntegrationTests(TestCase):
             response = self.client.get("/api/enclosures/camera-test/camera/hls/RGB-001/index.m3u8")
             self.assertEqual(response.status_code, 502)
             self.assertEqual(client.return_value.request.call_count, 1)
+
+    def test_playlist_preserves_relative_segments(self):
+        playlist = b"#EXTM3U\n#EXT-X-VERSION:3\n#EXTINF:4,\nb2274a89-8f2a-4e2b-a1be-309f3ba80d44/12.ts\n"
+        with patch("habitat.camera_ir._inventory", return_value=self.inventory()), patch("habitat.camera_ir._client") as client:
+            client.return_value.request.return_value = (200, playlist)
+            response = self.client.get("/api/camera/hls/RGB-001/index.m3u8")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"b2274a89-8f2a-4e2b-a1be-309f3ba80d44/12.ts", response.content)
+            self.assertEqual(self.client.get("/api/camera/hls/OTHER/index.m3u8").status_code, 404)
 
     def test_ir_command_is_bounded_and_requires_role(self):
         with patch("habitat.camera_ir._inventory", return_value=self.inventory()), patch("habitat.camera_ir._client") as client:

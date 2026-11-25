@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "recorded_as_of": "2026-11-17 19:10 Asia/Seoul",
+  "evaluation_scope": "Repeated development-photo evaluation; saved-output audit, not a new inference or independent field validation.",
+  "general_photo_count": 305,
+  "baseline": {
+    "true_positive": 265,
+    "false_positive": 10,
+    "false_negative": 28,
+    "negative_image_false_positive": 1
+  },
+  "comparison_pipeline": {
+    "true_positive": 282,
+    "false_positive": 8,
+    "false_negative": 11,
+    "negative_image_false_positive": 1
+  },
+  "source_sha256": {
+    "REPORT.md": "59a99d0ee9789d900eedea299dc5b55ca307ff2dcfccf032794e33b07422a48b",
+    "baseline-vs-current-per-image.json": "f757c414ddbc9e556917c649e84c1af2dcaf064b466dd7fa6e489fee153f01d3"
+  },
+  "scope_limits": [
+    "Composite pipeline, not one detector alone.",
+    "Does not establish Pi throughput, continuous video performance, behavior accuracy, or shedding prediction.",
+    "Published trained heads are a historical component, not a complete reproduction of this comparison pipeline."
+  ]
+}

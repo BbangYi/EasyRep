@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}로그인 · EasyRep{% endblock %}{% block content %}<section class="card"><p class="eyebrow">EasyRep WORKSPACE</p><h1>로그인</h1><p class="muted">등록된 계정으로 접속하세요.</p>{% if request.session.ended_elsewhere %}<p class="notice">다른 기기의 로그인 또는 계정 정보 변경으로 다시 로그인해야 합니다.</p>{% endif %}<div class="demo-entry"><a class="button full" href="/demo/">데모 둘러보기</a><p class="fine">로그인 없이 예시 데이터로 모든 화면을 둘러보세요.</p></div><form method="post">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}
+{% if field.name == "remember_device" %}
+<div class="remember-device"><label for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label><p class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{{ field.errors }}</div>
+{% else %}<p>{{ field.label_tag }}{{ field }}{{ field.errors }}</p>{% endif %}
+{% endfor %}<input type="hidden" name="next" value="{{ next }}"><button type="submit" class="primary full">로그인</button></form><p class="fine">총괄 계정은 여러 기기에서 함께 접속할 수 있습니다. 로그아웃은 현재 기기에만 적용됩니다.</p><details><summary>로그인에 도움이 필요해요</summary><p>비밀번호 설정·재설정 링크는 소속 관리자에게 요청하세요. 계정이 없는 경우 관리자가 먼저 등록해야 합니다.</p></details></section>{% endblock %}

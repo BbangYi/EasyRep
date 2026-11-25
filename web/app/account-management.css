@@ -1,0 +1,101 @@
+/* Account hierarchy: scoped demo editing, separate from actual authentication. */
+.management-tabs { margin-bottom: 8px; min-height: 48px; padding: 4px; }
+.management-tabs [data-slot="tabs-trigger"] { min-height: 44px; padding: 8px 20px; font-size: 16px; font-weight: 600; }
+.management-tabs [data-state="active"] { background: var(--primary); color: var(--primary-foreground); }
+.account-workspace { display: grid; gap: 16px; }
+.account-preview-bar { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-subtle); }
+.account-preview-bar strong { font-size: 16px; }
+.account-preview-bar p, .account-preview-bar label > span { font-size: 14px; color: var(--muted-foreground); line-height: 1.6; }
+.account-preview-bar label { display: flex; align-items: center; gap: 12px; }
+.account-workspace select, .account-form :is(input:not([type="checkbox"]), select) { max-width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); font-size: 16px; }
+.account-hierarchy { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.account-role { padding: 16px; border-top: 3px solid var(--border); }
+.account-role.is-current { border-top-color: var(--primary); }
+.account-role > div { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.account-role h2 { font-size: 17px; font-weight: 700; }
+.account-role .neutral-badge { margin-left: auto; }
+.account-role > strong { display: block; font-size: 16px; margin-top: 12px; }
+.account-role p { font-size: 14px; color: var(--muted-foreground); margin-top: 4px; }
+.account-members .panel-heading h2 { display: flex; align-items: center; gap: 8px; }
+.account-members .panel-heading p { font-size: 14px; }
+.account-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.account-table th { padding: 12px 16px; background: var(--surface-subtle); text-align: left; font-size: 14px; color: var(--secondary-foreground); }
+.account-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 15px; overflow-wrap: anywhere; }
+.account-table th:nth-child(1) { width: 22%; }
+.account-table th:nth-child(2) { width: 15%; }
+.account-table th:nth-child(3) { width: 36%; }
+.account-table th:nth-child(4) { width: 12%; }
+.account-table th:nth-child(5) { width: 15%; }
+.account-name > strong { font-size: 16px; }
+.account-name .neutral-badge { margin-left: 8px; }
+.account-scope > strong, .account-scope > span { display: block; }
+.account-scope > span { font-size: 14px; color: var(--muted-foreground); margin-top: 3px; line-height: 1.5; }
+.account-action { text-align: right; }
+.account-action > .muted { font-size: 14px; }
+.account-action .button { min-height: 44px; }
+.account-notice { padding: 12px 16px; color: var(--muted-foreground); font-size: 14px; line-height: 1.6; }
+.account-access-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 16px; }
+.account-access-summary h2 { font-size: 17px; font-weight: 700; }
+.account-access-summary p { color: var(--muted-foreground); font-size: 14px; line-height: 1.6; }
+.account-access-summary dl { display: flex; flex: 1; justify-content: space-between; gap: 20px; }
+.account-access-summary dt { font-size: 14px; color: var(--muted-foreground); margin-bottom: 4px; }
+.account-access-summary dd { font-size: 16px; font-weight: 600; }
+.account-integration-note { width: 100%; border-top: 1px solid var(--border-subtle); padding-top: 12px; }
+.account-form { display: flex; flex-direction: column; gap: 18px; }
+.account-form > label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600; }
+.account-form legend { font-size: 14px; font-weight: 600; }
+.account-form fieldset > p, .account-field-note { margin: 6px 0; font-size: 14px; color: var(--muted-foreground); line-height: 1.6; }
+.account-enclosure-option { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 0; font-size: 15px; }
+.account-enclosure-option input { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; }
+.account-editor-actions { display: flex; justify-content: flex-end; gap: 8px; padding-bottom: env(safe-area-inset-bottom); }
+.account-editor-actions .button { min-height: 44px; font-size: 15px; }
+@media (max-width: 1100px) {
+  .account-preview-bar { align-items: flex-start; flex-direction: column; }
+  .account-preview-bar label { width: 100%; justify-content: space-between; }
+  .account-access-summary dl { flex-basis: 100%; }
+  .account-role > div { flex-wrap: wrap; }
+  .account-role .neutral-badge { margin-left: 0; }
+  .account-table th:nth-child(1) { width: 24%; }
+  .account-table th:nth-child(2) { width: 18%; }
+  .account-table th:nth-child(3) { width: 28%; }
+}
+@media (max-width: 767px) {
+  .management-tabs { width: 100%; }
+  .management-tabs [data-slot="tabs-trigger"] { flex: 1; padding: 8px 12px; }
+  .account-preview-bar label { align-items: stretch; flex-direction: column; gap: 6px; }
+  .account-hierarchy { grid-template-columns: 1fr; gap: 8px; }
+  .account-role { padding: 10px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; }
+  .account-role > div { grid-column: 1 / -1; }
+  .account-role > strong { display: none; }
+  .account-role p { grid-column: 1 / -1; margin-top: 0; }
+  .account-role .neutral-badge { margin-left: auto; }
+  .account-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .account-table tbody { display: block; }
+  .account-table tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name state" "role role" "scope scope" "action action"; gap: 6px 12px; padding: 16px; border-bottom: 1px solid var(--border); }
+  .account-table td { display: block; border: 0; padding: 0; }
+  .account-name { grid-area: name; }
+  .account-name .neutral-badge { margin: 4px 0 0; }
+  .account-role-cell { grid-area: role; color: var(--secondary-foreground); }
+  .account-scope { grid-area: scope; margin: 6px 0; }
+  .account-state { grid-area: state; text-align: right; }
+  .account-action { grid-area: action; }
+  .account-access-summary dl { flex-direction: column; gap: 12px; }
+  .account-access-summary dl > div { display: flex; justify-content: space-between; gap: 12px; }
+  .account-access-summary dd { text-align: right; }
+}
+
+/* Server-authenticated runtime. The Sites preview keeps its labelled demo. */
+.session-message { width: min(480px, calc(100% - 32px)); margin: 12vh auto; background: var(--card); border-radius: 10px; padding: 28px; line-height: 1.7; }
+.session-message h1 { font-size: 24px; font-weight: 700; }
+.session-message p { margin: 12px 0 20px; }
+.session-message form { margin-top: 12px; }
+.session-account-link { display: flex; flex-direction: column; font-size: 14px; font-weight: 650; line-height: 1.4; }
+.session-account-link span { font-size: 12px; font-weight: 400; color: var(--muted-foreground); }
+.session-logout { min-height: 44px; padding: 8px; font-size: 14px; font-weight: 600; }
+.session-management { padding: 24px; }
+.session-management h2 { font-size: 20px; font-weight: 700; }
+.session-management p { margin: 8px 0; font-size: 16px; }
+.session-management > div { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.session-notice { padding: 12px 16px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 15px; }
+.session-notice a { text-decoration: underline; font-weight: 600; }
+@media(max-width:767px) { .topbar:has(.session-account-link) { flex-wrap: wrap; gap: 6px; } .topbar:has(.session-account-link) .topbar-status { width: 100%; flex-wrap: wrap; } .session-account-link { margin-left: auto; } }

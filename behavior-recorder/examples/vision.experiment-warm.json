@@ -1,0 +1,47 @@
+{
+  "baseline": "data/gpu-jobs/crested-commons-seed-01/result/model",
+  "confidence": 0.4,
+  "iou": 0.5,
+  "candidates": [
+    {
+      "name": "warm-1e-5",
+      "epochs": 80,
+      "seed": 42,
+      "training_options": {
+        "optimizer": "AdamW",
+        "lr0": 1e-05,
+        "lrf": 0.1,
+        "warmup_bias_lr": 1e-05,
+        "warmup_epochs": 3.0,
+        "cos_lr": true,
+        "patience": 20,
+        "scale": 0.2,
+        "translate": 0.1,
+        "hsv_h": 0.015,
+        "hsv_s": 0.3,
+        "hsv_v": 0.25,
+        "freeze": 11
+      }
+    },
+    {
+      "name": "warm-5e-5",
+      "epochs": 80,
+      "seed": 42,
+      "training_options": {
+        "optimizer": "AdamW",
+        "lr0": 5e-05,
+        "lrf": 0.1,
+        "warmup_bias_lr": 5e-05,
+        "warmup_epochs": 3.0,
+        "cos_lr": true,
+        "patience": 20,
+        "scale": 0.2,
+        "translate": 0.1,
+        "hsv_h": 0.015,
+        "hsv_s": 0.3,
+        "hsv_v": 0.25,
+        "freeze": 11
+      }
+    }
+  ]
+}

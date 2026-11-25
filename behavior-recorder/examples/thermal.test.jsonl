@@ -1,0 +1,1 @@
+{"record_id":"test-thermal-001","camera_id":"thermal-01","observed_at":null,"received_at":null,"capture_clock":{"source":"unknown","accuracy_ms":null},"provenance":"synthetic_test","unit":"raw_count","placement_revision":null,"calibration_revision":null,"calibration":null,"values":[[100,101],[null,102]],"note":"synthetic raw counts; not measured temperatures"}

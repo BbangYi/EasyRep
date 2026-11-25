@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-25",
+  "components": {
+    "web": {
+      "source": "work/easyrep-continuous/implementation/ops-status-and-r3-update-20261117/source",
+      "baseline_commit": "f8a809efbb413dda3948eff025895ce12d5922c2",
+      "includes_uncommitted_changes": true,
+      "files": 296
+    },
+    "behavior-recorder": {
+      "source": "behavior-recorder",
+      "baseline_commit": "00aa98d5796c5c022add3726cd89fda2d6792ff6",
+      "includes_uncommitted_changes": true,
+      "files": 172
+    }
+  }
+}

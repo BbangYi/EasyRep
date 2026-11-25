@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ management_title }} · EasyRep{% endblock %}
+{% block width %}wide management-page{% endblock %}
+{% block content %}
+<div class="page-title">
+  <div>
+    <p class="eyebrow">{{ user.get_role_display }} · {{ user.store|default:"전체 매장" }}</p>
+    <h1>{{ management_title }}</h1>
+    <p class="muted scope-description">{{ management_description }}</p>
+  </div>
+  {% if user.role == "owner" %}<a class="button" href="/manage/site/">사이트 설정</a>{% endif %}
+</div>
+
+{% if user.role != "user" %}
+<section class="card" id="accounts" aria-labelledby="accounts-title">
+  <div class="section-title">
+    <h2 id="accounts-title">계정 <span class="result-count">{{ account_page.paginator.count }}명</span></h2>
+    <a class="button primary" href="/manage/accounts/new/">계정 추가</a>
+  </div>
+  <form class="account-filters" method="get" action="/manage/#accounts" aria-label="계정 필터">
+    <div class="account-search"><label for="account-search">이름·이메일 검색</label><input id="account-search" type="search" name="q" value="{{ account_filters.q }}" maxlength="80" placeholder="이름 또는 로그인 ID"></div>
+    {% if user.role == "owner" %}
+    <div><label for="account-store">매장</label><select id="account-store" name="store"><option value="">전체 매장</option>{% for store in stores %}<option value="{{ store.pk }}" {% if account_filters.store == store.pk|stringformat:"s" %}selected{% endif %}>{{ store.name }}</option>{% endfor %}</select></div>
+    {% endif %}
+    <div><label for="account-role">역할</label><select id="account-role" name="role">
+      <option value="">전체 역할</option>
+      {% if user.role == "owner" %}<option value="owner" {% if account_filters.role == "owner" %}selected{% endif %}>총괄 관리자</option>{% endif %}
+      <option value="manager" {% if account_filters.role == "manager" %}selected{% endif %}>매장 관리자</option>
+      <option value="user" {% if account_filters.role == "user" %}selected{% endif %}>사용자</option>
+    </select></div>
+    <div><label for="account-status">접속 상태</label><select id="account-status" name="status">
+      <option value="">전체 상태</option>
+      <option value="active" {% if account_filters.status == "active" %}selected{% endif %}>접속 허용</option>
+      <option value="pending" {% if account_filters.status == "pending" %}selected{% endif %}>설정 대기</option>
+      <option value="inactive" {% if account_filters.status == "inactive" %}selected{% endif %}>접속 중지</option>
+    </select></div>
+    <div class="filter-actions"><button type="submit" class="primary">조회</button><a class="button" href="/manage/#accounts">초기화</a></div>
+  </form>
+  <p class="list-caption">최근 등록순 · 페이지당 20명</p>
+  <div class="table-wrap"><table class="account-table">
+    <thead><tr><th scope="col">이름·로그인 ID</th><th scope="col">역할</th><th scope="col">소속</th><th scope="col">접속 상태</th><th scope="col">관리</th></tr></thead>
+    <tbody>
+      {% for account in accounts %}
+      <tr>
+        <td class="account-identity"><strong>{{ account.display_name }}</strong>{% if account.pk == user.pk %}<span class="self-badge">내 계정</span>{% endif %}<span class="secondary">{{ account.username }}</span></td>
+        <td data-label="역할">{{ account.get_role_display }}</td>
+        <td data-label="소속">{{ account.store|default:"전체 매장" }}</td>
+        <td data-label="접속 상태"><span class="account-status {% if not account.is_active %}is-paused{% elif not account.has_usable_password %}is-pending{% endif %}">{% if not account.is_active %}접속 중지{% elif not account.has_usable_password %}설정 대기{% else %}접속 허용{% endif %}</span></td>
+        <td class="account-action">{% if account.pk in editable_ids %}<a class="button" href="/manage/accounts/{{ account.pk }}/" aria-label="{{ account.display_name }} 계정 수정">수정</a>{% elif account.pk == user.pk %}<a class="button" href="/profile/">내 계정</a>{% endif %}</td>
+      </tr>
+      {% empty %}<tr class="account-empty"><td colspan="5">조건에 맞는 계정이 없습니다. 필터를 변경해 주세요.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  {% if account_page.has_other_pages %}
+  <nav class="account-pagination" aria-label="계정 목록 페이지">
+    {% if account_page.has_previous %}<a class="button" href="?{{ account_query }}&amp;page={{ account_page.previous_page_number }}#accounts">이전</a>{% endif %}
+    <span>{{ account_page.number }} / {{ account_page.paginator.num_pages }} 페이지</span>
+    {% if account_page.has_next %}<a class="button" href="?{{ account_query }}&amp;page={{ account_page.next_page_number }}#accounts">다음</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% else %}
+<section class="card">
+  <div class="section-title"><h2>내 계정</h2><a class="button" href="/profile/">내 계정 수정</a></div>
+  <dl class="account-summary"><dt>이름</dt><dd>{{ user.display_name }}</dd><dt>로그인 ID</dt><dd>{{ user.username }}</dd><dt>조회 범위</dt><dd>배정된 사육장의 환경·장치 상태·기록</dd></dl>
+</section>
+{% endif %}
+
+<div class="two-columns">
+  <section class="card">
+    <div class="section-title"><h2>{% if user.role == "owner" %}매장{% else %}소속 매장{% endif %}</h2>{% if user.role == "owner" %}<a class="button" href="/manage/stores/new/">매장 추가</a>{% endif %}</div>
+    <ul class="rows">{% for store in stores %}<li><span><strong>{{ store.name }}</strong><small>{{ store.region }}</small></span>{% if user.role == "owner" %}<a class="button" href="/manage/stores/{{ store.pk }}/" aria-label="{{ store.name }} 수정">수정</a>{% endif %}</li>{% empty %}<li>소속 매장이 없습니다.</li>{% endfor %}</ul>
+  </section>
+  <section class="card">
+    <div class="section-title"><h2>{% if user.role == "owner" %}등록 사육장{% else %}담당 사육장{% endif %}</h2>{% if user.role == "owner" %}<a class="button" href="/manage/enclosures/new/">사육장 등록</a>{% endif %}</div>
+    <ul class="rows">{% for enclosure in enclosures %}<li><span><strong>{{ enclosure.name }}</strong><small>{{ enclosure.store }}</small></span><span class="row-actions"><a class="button" href="/#home/{{ enclosure.pk }}" aria-label="{{ enclosure.name }} 보기">보기</a>{% if user.role == "owner" %}<a class="button" href="/manage/enclosures/{{ enclosure.pk }}/" aria-label="{{ enclosure.name }} 수정">수정</a>{% endif %}</span></li>{% empty %}<li>배정된 사육장이 없습니다.</li>{% endfor %}</ul>
+  </section>
+</div>
+{% if user.role != "user" %}
+<section class="card"><h2>Pi 등록 정보</h2>
+  <p class="muted">{% if user.role == "owner" %}등록된 Pi의 수신 설정을 관리합니다. 인증키는 표시하지 않습니다.{% else %}소속 매장의 등록 정보입니다. 설정 변경은 총괄 관리자에게 요청하세요.{% endif %}</p>
+  <ul class="rows">{% for gateway in gateways %}<li><span><strong>{{ gateway.edge_gateway_id }} · {{ gateway.store }}</strong><small>{% if gateway.active %}수신 허용{% else %}수신 중지{% endif %} · {% if gateway.allow_simulation %}가상 데이터 허용{% else %}센서 데이터 전용{% endif %}</small></span>{% if user.role == "owner" %}<a class="button" href="/manage/gateways/{{ gateway.pk }}/">설정</a>{% endif %}</li>{% empty %}<li>등록된 Pi가 없습니다.</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% if user.role == "owner" %}
+<section class="card"><h2>최근 계정·사이트 변경</h2><ul class="rows">{% for event in events %}<li><span><strong>{{ event.action }}</strong><small>{{ event.actor|default:"—" }} · {{ event.target }}</small></span><time datetime="{{ event.created_at|date:'c' }}">{{ event.created_at|date:"m.d H:i:s" }}</time></li>{% empty %}<li>변경 기록이 없습니다.</li>{% endfor %}</ul></section>
+{% endif %}
+{% endblock %}

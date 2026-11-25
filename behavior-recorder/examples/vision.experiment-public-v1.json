@@ -1,0 +1,16 @@
+{
+  "baseline": "data/gpu-jobs/lizard-public-v1-01/result/model",
+  "confidence": 0.4,
+  "iou": 0.5,
+  "candidates": [{
+    "name": "transfer-frozen",
+    "epochs": 60,
+    "seed": 42,
+    "training_options": {
+      "optimizer": "AdamW", "lr0": 0.0003, "lrf": 0.1,
+      "warmup_bias_lr": 0.0003, "warmup_epochs": 3.0,
+      "cos_lr": true, "patience": 20, "scale": 0.15, "translate": 0.1,
+      "hsv_h": 0.015, "hsv_s": 0.3, "hsv_v": 0.25, "freeze": 10
+    }
+  }]
+}

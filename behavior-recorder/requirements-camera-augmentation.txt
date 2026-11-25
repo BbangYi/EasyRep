@@ -1,0 +1,13 @@
+# Optional camera augmentation for the existing dedicated vision worker.
+# Install with --no-deps after requirements-vision.txt: reuse its NumPy,
+# PyYAML and OpenCV provider instead of installing a second cv2 distribution.
+# The training adapter verifies the real Ultralytics transform pipeline.
+albumentations==2.0.8
+albucore==0.0.24
+scipy==1.18.1
+pydantic==2.14.1
+pydantic-core==2.50.1
+annotated-types==0.8.0
+typing-inspection==0.4.4
+simsimd==6.5.16
+stringzilla==5.3.1

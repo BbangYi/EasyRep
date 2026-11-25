@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "shedding_event",
+  "dataset_kind": "real",
+  "record_id": "replace-with-event-id",
+  "animal_id": "replace-with-confirmed-animal-id",
+  "species": "crested_gecko",
+  "enclosure_id": "replace-with-enclosure-id",
+  "stage": "uncertain",
+  "earliest_at": null,
+  "latest_at": null,
+  "observer": "replace-with-observer-id",
+  "evidence_reference": ""
+}

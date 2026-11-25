@@ -1,0 +1,24 @@
+# Secrets and local execution state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.token
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv*/
+node_modules/
+*.sqlite*
+*.db
+*.log
+# Model binaries and generated runtime data are managed separately.
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.npz
+*.joblib
+*.pkl

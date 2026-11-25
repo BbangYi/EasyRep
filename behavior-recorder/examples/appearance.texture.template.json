@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_texture_plan",
+  "observation_input": "observation-input.json",
+  "observation_artifact": "colour-observation.json",
+  "observation_sha256": null,
+  "extraction": {
+    "pixel_offset": null,
+    "minimum_pairs": null,
+    "max_clipped_fraction": null,
+    "max_scale_relative_error": null
+  },
+  "geometry": {
+    "pixels_per_mm": null,
+    "scale_relative_error": null,
+    "reference_revision": null,
+    "pose_revision": null,
+    "planar_region_confirmed": false
+  },
+  "review": {
+    "observer": null,
+    "flat_lighting_confirmed": false,
+    "same_pose_confirmed": false,
+    "rights_confirmed": false,
+    "owner_id": null,
+    "rights_evidence": null
+  },
+  "evidence_reference": null
+}

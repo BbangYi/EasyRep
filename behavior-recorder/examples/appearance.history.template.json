@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_reviewed_history_plan",
+  "intakes": [
+    {"path": "appearance-reviewed-v1/intake-report.json", "sha256": null},
+    {"path": "appearance-reviewed-v2/intake-report.json", "sha256": null}
+  ]
+}

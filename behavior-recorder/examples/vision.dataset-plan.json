@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "species": "crested_gecko",
+  "dataset_kind": "real",
+  "split_policy": "source_group_disjoint",
+  "sources": [
+    {
+      "id": "source-1",
+      "url": "",
+      "license": "",
+      "attribution": "",
+      "provenance": "public_real"
+    }
+  ],
+  "records": []
+}

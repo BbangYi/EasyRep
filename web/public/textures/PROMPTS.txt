@@ -1,0 +1,11 @@
+Mode: built-in image_gen. Retained forest asset from the original generation batch. No repainting or upscaling.
+
+FOREST DASHBOARD
+Use case: photorealistic-natural.
+Asset type: full-page dashboard background photograph, not a website mockup or marketing hero.
+Primary request: A genuinely photoreal lush humid woodland interior in a wide landscape composition, target 2560x1440 pixels or the best available landscape size.
+Scene and subject: Mature vertical tree trunks in a real forest, with moss naturally growing on weathered bark and roots, ferns across the forest floor, and layered woodland depth.
+Composition: Broad recognizable forest composition at natural eye level. Keep the most prominent trunks mostly near the edges, and the central region moderately calm to sit behind dashboard cards. No central pathway or trail focal point.
+Lighting: Soft natural daylight, subdued gentle contrast, subtle atmospheric depth.
+Palette and texture: Realistic olive greens, deep forest greens, warm umber wood, finely resolved natural bark, moss, and fern texture.
+Constraints: Realistic photographic material and organic structure. No people, animals, text, logos, watermark, UI, buildings, neon, cartoon, painting, illustration, stylized artistic effects, or dramatic spotlight beams. Produce only this standalone forest image.

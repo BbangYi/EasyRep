@@ -1,0 +1,3 @@
+# Isolated from the recorder's standard-library runtime.
+ultralytics==8.4.177
+lap==0.5.12

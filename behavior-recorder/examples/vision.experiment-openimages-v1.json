@@ -1,0 +1,18 @@
+{
+  "baseline": "data/gpu-jobs/lizard-public-v1-02/result/transfer-frozen",
+  "confidence": 0.4,
+  "iou": 0.5,
+  "candidates": [{
+    "name": "diverse-full",
+    "epochs": 50,
+    "seed": 42,
+    "training_options": {
+      "optimizer": "AdamW", "lr0": 0.0005, "lrf": 0.1,
+      "warmup_bias_lr": 0.0005, "warmup_epochs": 3.0,
+      "cos_lr": true, "patience": 12, "freeze": 0,
+      "scale": 0.4, "translate": 0.15,
+      "hsv_h": 0.015, "hsv_s": 0.5, "hsv_v": 0.4,
+      "mosaic": 0.3, "degrees": 20, "flipud": 0.15
+    }
+  }]
+}

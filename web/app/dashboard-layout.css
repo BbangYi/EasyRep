@@ -1,0 +1,375 @@
+/* Shared by Sites and the Pi build. Edit desktop density here.
+   Target: Full HD at 90% browser zoom, about 2133x1089 available CSS pixels.
+   Smaller screens and expanded content keep natural page scrolling. */
+.page-title-group { display: flex; flex-direction: column-reverse; gap: 8px; min-width: 0; }
+.page-title-group .enclosure-context { margin-bottom: 0; }
+.chart-plot-section { min-width: 0; }
+.detailed-chart .chart-controls { flex-wrap: wrap; }
+.detailed-chart .sensor-select-row { order: 3; width: 100%; padding: 0; }
+
+@media (min-width: 1600px) {
+  .habitat-workspace {
+    --dashboard-gap: 16px;
+    --dashboard-padding: 16px;
+    --dashboard-chart-height: clamp(180px, 20vh, 220px);
+  }
+  .topbar { min-height: 58px; padding: 10px 22px; }
+  .page-content { max-width: none; padding: 16px 22px 12px; }
+  .page-heading { margin-bottom: 12px; }
+  .page-title-group { flex-direction: row; align-items: center; gap: 20px; }
+  .page-title-group .enclosure-context { margin: 0; }
+  .page-footer { margin-top: 12px; padding-top: 10px; }
+
+  /* Fleet: four enclosures remain together, with readable values and photos. */
+  .page-home .fleet-summary { gap: var(--dashboard-gap); margin-bottom: 14px; }
+  .page-home .fleet-summary button { padding: 10px 16px; }
+  .page-home .fleet-summary button > span { font-size: 14px; }
+  .page-home .fleet-toolbar { margin-bottom: 12px; }
+  .page-home .enclosure-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .page-home .enclosure-card-photo { height: clamp(150px, 18vh, 190px); }
+  .page-home .enclosure-card-body { padding: 16px; }
+  .page-home .enclosure-card-title h3 { font-size: 17px; margin-top: 4px; }
+  .page-home .enclosure-card-title > div > span,
+  .page-home .enclosure-card-values > div > span,
+  .page-home .enclosure-card-footer,
+  .page-home .enclosure-card-footer button { font-size: 12px; }
+  .page-home .enclosure-status { font-size: 13px; margin-top: 6px; column-gap: 5px; }
+  .page-home .enclosure-status > span { font-size: 12px; }
+  .page-home .enclosure-card-values { margin-top: 16px; gap: 12px; }
+  .page-home .enclosure-card-footer { padding: 2px 16px; }
+  .page-home .photo-credits { margin-top: 12px; }
+  .page-home .fleet-note { margin-top: 6px; }
+
+  .active-alert { padding: 10px 16px; margin-bottom: 12px; }
+  .active-alert > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; }
+  .active-alert strong { grid-column: 1 / -1; }
+  .active-alert p { margin: 0; }
+
+  /* Current readings use a horizontal layout; units and timestamps stay visible. */
+  :is(.page-enclosure, .page-environment) .section-heading { margin-bottom: 8px; }
+  :is(.page-enclosure, .page-environment) .metrics-grid { gap: var(--dashboard-gap); margin-bottom: 12px; }
+  :is(.page-enclosure, .page-environment) .metric-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    padding: 10px var(--dashboard-padding) 0;
+  }
+  :is(.page-enclosure, .page-environment) .metric-label { grid-column: 1; grid-row: 1; }
+  :is(.page-enclosure, .page-environment) .metric-value {
+    grid-column: 2; grid-row: 1 / 3; margin: 0; font-size: 30px;
+  }
+  :is(.page-enclosure, .page-environment) .metric-value > span { font-size: 18px; }
+  :is(.page-enclosure, .page-environment) .metric-note { grid-column: 1; grid-row: 2; margin-top: 4px; }
+  :is(.page-enclosure, .page-environment) .metric-footer { grid-column: 1 / -1; margin-top: 8px; padding: 6px 0; }
+  :is(.page-enclosure, .page-environment) .panel-heading { padding: 12px var(--dashboard-padding); }
+  :is(.page-enclosure, .page-environment) .panel-heading p { margin-top: 4px; }
+  :is(.page-enclosure, .page-environment) .chart-controls { padding: 0 var(--dashboard-padding) 8px; gap: 8px; }
+  :is(.page-enclosure, .page-environment) .chart-canvas { height: var(--dashboard-chart-height); }
+  :is(.page-enclosure, .page-environment) .chart-legends { padding: 4px var(--dashboard-padding) 2px; column-gap: 12px; }
+  :is(.page-enclosure, .page-environment) .chart-legends button { min-height: 32px; }
+  :is(.page-enclosure, .page-environment) .timeline-explorer { padding: 4px var(--dashboard-padding) 8px; }
+  :is(.page-enclosure, .page-environment) .timeline-heading { margin-bottom: 4px; }
+  :is(.page-enclosure, .page-environment) .timeline-heading button { min-height: 28px; }
+  :is(.page-enclosure, .page-environment) .chart-readout { padding: 8px; }
+  :is(.page-enclosure, .page-environment) .chart-footer { padding: 7px var(--dashboard-padding); }
+
+  /* Enclosure: plot, media, and the operating records occupy three columns. */
+  .page-enclosure .dashboard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas: "chart media devices" "chart media records";
+    gap: var(--dashboard-gap);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .page-enclosure .home-chart { grid-area: chart; }
+  .page-enclosure .enclosure-media { grid-area: media; }
+  .page-enclosure .device-panel { grid-area: devices; }
+  .page-enclosure .records-panel { grid-area: records; }
+  .page-enclosure .media-frame:not(.enlarged-frame),
+  .page-enclosure .camera-empty { height: clamp(180px, 20vh, 220px); min-height: 180px; }
+  .page-enclosure .media-tabs { margin: 0 var(--dashboard-padding) 10px; }
+  .page-enclosure .media-actions { padding: 10px var(--dashboard-padding) 0; }
+  .page-enclosure .media-note { padding: 8px var(--dashboard-padding) 10px; }
+  .page-enclosure .media-credit { padding: 8px var(--dashboard-padding); }
+  .page-enclosure .device-list,
+  .page-enclosure .recent-records { padding: 0 var(--dashboard-padding) 4px; }
+  .page-enclosure .device-row,
+  .page-enclosure .record-row { padding: 8px 0; }
+  .page-enclosure .panel-footnote { padding: 8px var(--dashboard-padding); }
+  .page-enclosure .detail-location-link { gap: 8px; align-items: center; min-height: 36px; margin-top: 8px; font-size: 13px; }
+
+  /* Environment: one control row; events beside the plot; a compact sensor column. */
+  .page-environment .environment-toolbar { padding-bottom: 8px; margin-bottom: 8px; }
+  .page-environment .export-message:empty { display: none; }
+  .page-environment .environment-grid { gap: var(--dashboard-gap); }
+  .page-environment .chart-controls { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+  .page-environment .sensor-select-row { order: initial; width: auto; justify-content: center; min-width: 0; gap: 8px; }
+  .page-environment .sensor-select-row > .criteria-label { display: none; }
+  .page-environment .period-summary { margin: 0 var(--dashboard-padding) 8px; padding: 8px 0; }
+  .page-environment .period-summary dt { margin-bottom: 2px; }
+  .page-environment .period-summary dd { font-size: 22px; }
+  .page-environment .period-summary .sample-count { font-size: 20px; }
+  .page-environment .chart-analysis-layout { display: grid; grid-template-columns: minmax(0, 1fr) 220px; }
+  .page-environment .event-timeline {
+    border-top: 0; border-left: 1px solid var(--border);
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .page-environment .event-timeline h3 { margin: 0; }
+  .page-environment .event-timeline > p { margin: 0; font-size: 12px; line-height: 1.6; }
+  .page-environment .event-timeline > button { display: grid; grid-template-columns: 16px 48px minmax(0, 1fr); gap: 3px 8px; padding: 8px 0; text-align: left; }
+  .page-environment .event-timeline > button > span { grid-column: 3; }
+  .page-environment .event-timeline > button > .muted { grid-column: 2 / -1; margin-left: 0; }
+  .page-environment .enclosure-diagram { padding: 0 14px; }
+  .page-environment .enclosure-frame { height: 180px; }
+  .page-environment .map-selection { margin: 8px 14px 10px; flex-wrap: wrap; }
+  .page-environment .sensor-detail-row { padding: 6px 14px; min-height: 48px; gap: 9px; }
+  .page-environment .sensor-detail-row small { margin-top: 2px; }
+  .page-environment .sensor-id { padding: 4px; }
+  .page-environment .environment-note { padding: 10px 0; }
+}
+
+/* At medium widths the same controls wrap without compressing the plot or touch targets. */
+@media (max-width: 1599px) {
+  .detailed-chart .sensor-select-row { margin-top: 4px; }
+}
+
+/* Wide environment workspace combines page and source tools into one header row. */
+@media (min-width: 1800px) {
+  .page-environment { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 24px; }
+  .page-environment > .page-heading { grid-column: 1; grid-row: 1; margin: 0; }
+  .page-environment .environment-view { display: contents; }
+  .page-environment .environment-toolbar { grid-column: 2; grid-row: 1; margin: 0; padding: 0; border: 0; gap: 20px; }
+  .page-environment > .active-alert,
+  .page-environment .environment-view > [role="tabpanel"],
+  .page-environment .export-message,
+  .page-environment > .page-footer { grid-column: 1 / -1; }
+  .page-environment > .active-alert,
+  .page-environment > .page-footer { margin: 0; }
+}
+
+/* Keep frequently used information visible; supporting explanations stay local. */
+.fleet-toolbar .fleet-result-heading { margin: 0; justify-content: flex-start; flex-wrap: wrap; }
+.forest-replay { width: 36px; height: 36px; justify-content: center; padding: 0; }
+.sidebar-footer .sidebar-note { align-items: center; padding: 16px 4px 0; }
+@media (min-width: 768px) {
+  .page-title-group .enclosure-context { display: none; }
+  .habitat-sidebar nav { margin-top: 24px; }
+}
+
+.chart-statistics > summary,
+.command-status-guide > summary,
+.media-credit > summary {
+  cursor: pointer; min-height: 36px; align-content: center; font-size: 12px;
+  color: var(--muted-foreground);
+}
+.chart-statistics > summary { padding: 0 23px; }
+.command-status-guide > summary { padding: 0 23px; }
+.media-credit > p { margin-top: 6px; }
+.chart-statistics .period-summary { margin-top: 0; }
+.timeline-explorer .chart-legends { padding: 6px 0 0; gap: 4px 16px; }
+.timeline-explorer .chart-legends button { min-height: 44px; gap: 6px; }
+.chart-legends .legend-name { font-size: 12px; }
+.chart-legends .legend-value { color: var(--foreground); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.event-timeline > button > svg:last-child { margin-left: auto; color: var(--muted-foreground); }
+@media (min-width: 1600px) {
+  .chart-statistics > summary { padding: 0 var(--dashboard-padding); }
+  .page-environment .event-timeline > button { grid-template-columns: 16px 48px minmax(0, 1fr) 12px; }
+}
+@media (max-width: 767px) {
+  .chart-statistics > summary, .command-status-guide > summary { padding: 0 17px; min-height: 44px; }
+  .media-credit > summary { min-height: 44px; }
+}
+
+/* Control: compact policy strip, device rows, and adjacent command results. */
+.control-workspace {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--dashboard-gap);
+  align-items: stretch;
+}
+.control-workspace > * { min-width: 0; }
+.control-workspace .control-policy {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 16px 20px;
+}
+.policy-heading { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.policy-heading h2 { display: flex; align-items: center; gap: 8px; }
+.policy-summary { display: flex; flex-wrap: wrap; gap: 14px 36px; }
+.policy-summary > div { display: flex; align-items: baseline; gap: 12px; }
+.policy-summary dt, .control-note, .control-workspace .requested-applied dt { font-size: 12px; color: var(--muted-foreground); }
+.policy-summary dd { font-size: 13px; font-weight: 500; }
+.control-note { display: inline-flex; align-items: center; gap: 6px; }
+.control-workspace .panel-heading { padding: 16px 20px; flex-wrap: wrap; gap: 10px; }
+.control-workspace .control-devices { padding: 0 20px; }
+.control-workspace .control-device {
+  display: grid;
+  grid-template-columns: minmax(135px, .8fr) minmax(220px, 1.5fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+.control-workspace .control-device-heading { flex-direction: column; align-items: flex-start; gap: 7px; }
+.control-workspace .control-device-heading h3 { font-size: 14px; line-height: 1.5; }
+.control-workspace .control-device-heading h3 span { display: block; margin: 0; }
+.control-workspace .requested-applied { padding: 0; gap: 20px; }
+.control-workspace .requested-applied > div { padding: 0; border: 0; background: none; }
+.control-workspace .requested-applied dd { margin-top: 5px; font-size: 14px; font-weight: 500; line-height: 1.6; }
+.control-workspace .disabled-controls { flex-wrap: nowrap; gap: 6px; }
+.control-workspace .disabled-controls .button { min-height: 36px; padding: 0 12px; font-size: 12px; }
+.control-workspace .control-panel { grid-column: span 2; }
+.control-workspace .command-results { grid-column: span 1; }
+.control-workspace .command-result-row { padding: 14px 20px; gap: 12px; }
+.control-workspace .command-result-row .neutral-badge { flex-shrink: 0; }
+.control-workspace .command-status-guide { border-top: 1px solid var(--border-subtle); }
+.control-workspace .command-status-guide > summary { padding: 0 20px; min-height: 42px; }
+.control-workspace .command-statuses { padding: 0 20px 14px; }
+.control-workspace .panel-message { padding: 12px 20px; }
+@media (max-width: 1399px) {
+  .control-workspace { grid-template-columns: 1fr; }
+  .control-workspace .control-panel { grid-column: auto; }
+  .control-workspace .control-policy { flex-wrap: wrap; gap: 16px 28px; }
+}
+@media (max-width: 767px) {
+  .control-workspace .control-policy { padding: 16px; flex-direction: column; align-items: stretch; }
+  .policy-heading { justify-content: space-between; }
+  .policy-summary { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .policy-summary > div { justify-content: space-between; }
+  .control-workspace .panel-heading { padding: 16px; }
+  .control-workspace .control-devices { padding: 0 16px; }
+  .control-workspace .control-device { grid-template-columns: 1fr; gap: 14px; }
+  .control-workspace .control-device-heading { flex-direction: row; align-items: center; }
+  .control-workspace .disabled-controls .button { min-height: 44px; min-width: 72px; }
+  .control-workspace .command-result-row { padding: 14px 16px; }
+}
+
+/* Distinguish devices without restoring large empty cards. */
+.control-device-identity { display: flex; align-items: center; gap: 10px; }
+.control-device-icon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 6px; background: var(--surface-subtle); color: var(--primary); }
+.control-workspace .control-device-heading > .neutral-badge { margin-left: 46px; }
+.control-workspace .requested-applied > div:last-child { padding-left: 14px; border-left: 2px solid var(--border); }
+.control-workspace .requested-applied > div:last-child dd { font-weight: 650; }
+
+/* Management: equal overview cards; full sensor lists live in the existing sheet. */
+.management-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas: none;
+  grid-auto-rows: 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.management-grid > .panel { display: flex; flex-direction: column; min-width: 0; }
+.management-grid .panel-heading { padding: 16px 18px; min-height: 58px; }
+.management-grid .panel-heading > svg { flex-shrink: 0; }
+.management-grid .settings-body { display: flex; flex-direction: column; flex: 1; padding: 0 18px 18px; }
+.management-grid .definition-row { padding: 9px 0; gap: 16px; }
+.management-grid .definition-row > strong { overflow-wrap: anywhere; }
+.management-grid .notification-setting { min-height: 36px; }
+.management-grid .settings-footer { margin-top: auto; padding-top: 14px; }
+.management-grid .settings-footer p { font-size: 12px; line-height: 1.6; color: var(--muted-foreground); }
+.management-grid .settings-footer > .button { margin-bottom: 10px; }
+.registration-sheet .registered-sensors { margin-top: 0; }
+.registration-sheet .registered-sensors > div { min-height: 44px; font-size: 14px; }
+.registration-sheet .registration-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 0; }
+.registration-sheet .registration-actions .button { margin: 0; min-height: 44px; }
+.registration-sheet .registration-actions p { margin-top: 0; flex-basis: 100%; }
+.registration-sheet .sheet-close { min-width: 44px; min-height: 44px; }
+.registration-empty { padding: 16px 0; color: var(--muted-foreground); }
+@media (min-width: 768px) and (max-width: 1399px) {
+  .management-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .management-grid { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+  .management-grid .panel-heading { padding: 16px; }
+  .management-grid .settings-body { padding: 0 16px 16px; }
+  .management-grid .settings-footer .button { min-height: 44px; }
+}
+@media (min-width: 1600px) {
+  .page-enclosure .dashboard-grid.without-history { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "media devices records"; grid-template-rows: auto; }
+}
+@media (max-width: 767px) {
+  .control-workspace .control-device-heading > .neutral-badge { margin-left: 0; }
+}
+
+/* Cross-page card system. One shared gap, inset, heading and row rhythm.
+   Equal units for peer cards; larger work areas span whole grid columns. */
+.habitat-workspace {
+  --dashboard-gap: 16px;
+  --dashboard-padding: 16px;
+  --dashboard-radius: 8px;
+  --dashboard-heading-height: 72px;
+  --dashboard-row-height: 64px;
+}
+.habitat-workspace :is(.fleet-summary, .enclosure-cards, .metrics-grid, .dashboard-grid, .environment-grid, .management-grid) { gap: var(--dashboard-gap); }
+.habitat-workspace :is(.panel, .metric-card, .enclosure-card, .fleet-summary > button) { border-radius: var(--dashboard-radius); }
+.habitat-workspace .panel-heading { min-height: var(--dashboard-heading-height); padding: 14px var(--dashboard-padding); }
+.habitat-workspace :is(.settings-body, .control-devices) { padding-left: var(--dashboard-padding); padding-right: var(--dashboard-padding); }
+.habitat-workspace .fleet-summary > button { min-height: 88px; }
+.habitat-workspace .enclosure-cards { grid-auto-rows: 1fr; align-items: stretch; }
+.habitat-workspace .enclosure-card { display: flex; flex-direction: column; }
+.habitat-workspace .enclosure-card-photo { flex-shrink: 0; }
+.habitat-workspace .enclosure-card-body { display: flex; flex-direction: column; flex: 1; padding: var(--dashboard-padding); }
+.habitat-workspace .enclosure-card-title { min-height: 64px; align-items: flex-start; }
+.habitat-workspace .enclosure-status { min-height: 40px; align-content: start; align-items: center; }
+.habitat-workspace .enclosure-card-values { margin-top: auto; padding-top: 12px; }
+.habitat-workspace .enclosure-card-footer { min-height: 48px; padding: 2px var(--dashboard-padding); }
+.habitat-workspace .enclosure-card-values > div { min-width: 0; }
+.habitat-workspace :is(.device-panel, .records-panel, .control-panel, .command-results) { display: flex; flex-direction: column; }
+.habitat-workspace :is(.device-list, .recent-records) { display: grid; grid-auto-rows: 1fr; flex: 1; padding: 0 var(--dashboard-padding); }
+.habitat-workspace :is(.device-row, .record-row) { min-height: var(--dashboard-row-height); padding: 10px 0; }
+.habitat-workspace .control-devices { display: grid; grid-auto-rows: 1fr; flex: 1; }
+.habitat-workspace .command-results .command-status-guide { margin-top: auto; }
+.habitat-workspace .command-result-row { min-height: var(--dashboard-row-height); padding-left: var(--dashboard-padding); padding-right: var(--dashboard-padding); }
+.habitat-workspace .enclosure-media { align-self: stretch; display: flex; flex-direction: column; }
+.habitat-workspace .enclosure-media > [data-slot="tabs"] { flex: 1; }
+.habitat-workspace .enclosure-media > [data-slot="tabs"] > [data-slot="tabs-content"][data-state="active"] { display: flex; flex-direction: column; flex: 1; }
+.habitat-workspace .enclosure-media :is(.media-frame:not(.enlarged-frame), .camera-empty) { flex: 1 0 auto; }
+.habitat-workspace .enclosure-media .media-credit { margin-top: auto; }
+@media (min-width: 768px) {
+  .habitat-workspace .metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+  .habitat-workspace .metric-card { padding-left: var(--dashboard-padding); padding-right: var(--dashboard-padding); }
+}
+@media (min-width: 1001px) {
+  .habitat-workspace .environment-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+  .habitat-workspace .environment-grid > .chart-panel { grid-column: span 2; }
+  .habitat-workspace .environment-grid > .sensor-map-panel { display: flex; flex-direction: column; }
+  .habitat-workspace .sensor-map-panel .enclosure-diagram { width: 100%; margin: 0 auto; }
+  .habitat-workspace .sensor-map-panel .sensor-details { margin-top: auto; }
+}
+@media (min-width: 1001px) and (max-width: 1599px) {
+  .habitat-workspace .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .habitat-workspace .dashboard-grid.without-history { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1001px) and (max-width: 1199px) {
+  .habitat-workspace .dashboard-grid.without-history { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .habitat-workspace .dashboard-grid.without-history > .enclosure-media { grid-column: 1 / -1; }
+}
+@media (min-width: 768px) and (max-width: 1050px) {
+  .habitat-workspace .enclosure-card { display: grid; grid-template-columns: 42% minmax(0, 1fr); }
+}
+@media (max-width: 1000px) {
+  .habitat-workspace .environment-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  .habitat-workspace .fleet-summary { gap: 12px; }
+  .habitat-workspace .enclosure-card-title { min-height: 56px; }
+  .habitat-workspace .enclosure-status { min-height: 30px; }
+  .habitat-workspace .enclosure-media .media-frame:not(.enlarged-frame) { flex: none; }
+}
+
+/* Text hierarchy stays distinct at 90% zoom without changing the card grid. */
+.habitat-workspace h1 { font-weight: 700; }
+.habitat-workspace :is(.panel-heading h2, .section-heading h2, .fleet-result-heading h2) { font-size: 18px; font-weight: 700; }
+.habitat-workspace :is(.enclosure-card-title h3, .device-row h3, .control-device-heading h3, .record-row h3, .command-result-row h3) { font-weight: 700; }
+.habitat-workspace :is(.metric-value, .enclosure-card-values strong, .fleet-summary strong) { font-weight: 700; }
+.habitat-workspace :is(.metric-label, .enclosure-card-values > div > span, .fleet-summary button > span) { color: var(--foreground); font-weight: 600; }
+.habitat-workspace :is(.metric-value > span, .enclosure-card-values small) { color: var(--secondary-foreground); font-weight: 500; }
+.habitat-workspace :is(.enclosure-status strong, .connection, .neutral-badge, .text-button, .definition-row > strong) { font-weight: 600; }
+.habitat-workspace :is(.definition-row, .record-row h3) { font-size: 14px; }
+.habitat-workspace .definition-row > span { font-weight: 500; }
+.habitat-workspace :is(.receipt-time, .metric-note, .metric-footer, .device-row p, .record-row p, .command-result-row p, .sensor-detail-row small, .enclosure-card-title > div > span, .enclosure-card-footer, .enclosure-card-footer button, .enclosure-status, .enclosure-status > span, .text-button) { font-size: 13px; }
+.habitat-workspace :is(.policy-summary dd, .requested-applied dd) { font-weight: 600; }
+.habitat-workspace .chart-legends .legend-value { font-weight: 700; }
+.habitat-workspace :is(.nav-item, .mobile-nav button) { font-weight: 600; }

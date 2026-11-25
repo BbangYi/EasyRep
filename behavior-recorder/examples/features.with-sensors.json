@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "camera_id": "rgb-01",
+  "animal_id": "animal-01",
+  "context": "day",
+  "roi": null,
+  "window_seconds": 30,
+  "sample_fps": 2,
+  "pixel_delta": 20,
+  "max_clock_error_ms": 500,
+  "sensors": [
+    {"sensor_id":"T1","unit":"degC","max_age_seconds":10,"geometry_revision":1,"placement_revision":1,"scale_floor":0.2},
+    {"sensor_id":"RH1","unit":"percent_rh","max_age_seconds":10,"geometry_revision":1,"placement_revision":1,"scale_floor":1.0}
+  ]
+}

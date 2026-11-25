@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EasyRep · 탈피 관찰 기록</title><link rel="stylesheet" href="/lab.css"><link rel="stylesheet" href="/appearance.css"><script defer src="/appearance.js"></script></head>
+<body>
+<header><a class="brand" href="/appearance">EasyRep <span>탈피 관찰 기록</span></a><span class="tag" id="storageMode">연결 확인 중</span></header>
+<main>
+<div class="intro"><p class="eyebrow">크레스티드 게코 · 카메라 없이 시작</p><h1>오늘 본 모습부터<br>기록해 주세요.</h1><p>직접 본 탈피 상태를 남기세요. 사진은 있을 때만 첨부하면 됩니다.</p></div>
+<div class="two-column">
+<article class="card"><h2>관찰 하나 남기기</h2>
+<form id="diaryForm">
+<fieldset id="entryFields" disabled>
+<div class="form-grid"><label>개체 기록 ID<input id="animalId" value="crested-01" required pattern="[A-Za-z0-9][A-Za-z0-9_.:\-]{0,127}" maxlength="128" aria-describedby="identityNote"></label><label>기록자 ID<input id="observer" required placeholder="예: owner" pattern="[A-Za-z0-9][A-Za-z0-9_.:\-]{0,127}" maxlength="128"></label></div>
+<p id="identityNote" class="small">crested-01은 첫 개체용 기록 이름입니다. 같은 개체에는 같은 ID를 사용하세요. ID는 영문·숫자·밑줄·마침표·콜론·하이픈으로 입력합니다.</p>
+<label>직접 본 상태<select id="assessment"><option value="uncertain">판단하기 어려움</option><option value="usual">평소와 비슷해 보임</option><option value="paler">평소보다 옅어 보임</option><option value="started">탈피 시작·진행을 직접 확인</option><option value="completed">탈피 완료를 직접 확인</option></select></label>
+<p class="small">‘옅어 보임’은 관찰 기록입니다. 탈피 예정 판정이나 정답으로 자동 변환하지 않습니다.</p>
+<div class="form-grid"><label>관찰 시각 또는 가능한 구간 시작<input id="earliestAt" type="datetime-local" required step="1"></label><label>구간 끝 (선택)<input id="latestAt" type="datetime-local" step="1" aria-describedby="timeNote"></label></div>
+<p id="timeNote" class="small">이 기기의 시간대로 입력합니다. 끝을 비우면 같은 시각으로 저장합니다. 시각이 불확실하면 가능한 구간을 입력하세요.</p>
+<label>직접 확인한 내용<textarea id="note" required maxlength="2000" rows="3" placeholder="어떤 모습을 봤는지, 시간이나 상태가 불확실한 점을 적어 주세요."></textarea></label>
+<label>사진 첨부 (선택)<input id="photo" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-describedby="photoNote"></label>
+<p id="photoNote" class="small">이미 가지고 있는 JPG·PNG 사진, 최대 8MiB. 원본을 그대로 보관합니다. 색상 측정에는 촬영 조건과 피부 영역의 별도 검수가 필요합니다.</p>
+<details><summary>사육장 기록 ID (알고 있을 때만)</summary><label>사육장 ID<input id="enclosureId" pattern="[A-Za-z0-9][A-Za-z0-9_.:\-]{0,127}" maxlength="128" placeholder="모르면 비워 두세요"></label></details>
+<label class="inline"><input id="identityConfirmed" type="checkbox" required> 위 ID의 개체를 직접 관찰한 기록입니다.</label>
+<button class="primary" id="saveEntry" type="submit">관찰 저장</button>
+</fieldset><p id="saveStatus" role="status" aria-live="polite"></p></form></article>
+<div><article class="card"><p class="eyebrow">예측 상태</p><h2>아직 탈피 시기를 예측하지 않습니다.</h2><p>실제 관측과 확인된 탈피 주기가 쌓인 뒤 별도 날짜·주기로 검증해야 합니다.</p><p>사진이 없어도 탈피 이력을 모을 수 있습니다. 색상 기반 모델에는 비교 가능한 컬러 사진이 필요합니다.</p><p class="note">이 화면은 분무기를 작동시키거나 분무량을 변경하지 않습니다.</p></article>
+<article class="card"><div class="viewer-head"><h2>저장한 관찰</h2><button id="exportEntries" type="button" disabled>전체 기록 내보내기</button></div><p id="recordCount" class="small"></p><p id="emptyState">아직 저장된 기록이 없습니다.</p><ol id="entries" class="diary-entries"></ol><p class="small">최근 30개를 표시합니다. 저장은 이 컴퓨터에만 이루어지며 카메라 연결·회원 가입이 필요하지 않습니다.</p></article></div>
+</div></main><footer>사람이 남긴 관찰 기록 · 촬영 및 개체 정보는 별도 확인 필요</footer>
+</body></html>

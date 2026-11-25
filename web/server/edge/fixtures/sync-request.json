@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "sent_at": "2026-09-18T08:00:00+00:00",
+  "gateway": {
+    "version": "0.3.0",
+    "transport": "simulated",
+    "healthy": true,
+    "cages": [
+      {
+        "configuration": {
+          "id": "CAGE-001",
+          "node_id": "ESP32-001",
+          "geometry_revision": 1,
+          "placement_revision": 1,
+          "stale_after_s": 15.0,
+          "sensors": [
+            {
+              "id": "T1",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T2",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T3",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T4",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T5",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "RH1",
+              "unit": "percent_rh",
+              "min_value": 0.0,
+              "max_value": 100.0
+            },
+            {
+              "id": "LUX1",
+              "unit": "lux",
+              "min_value": 0.0,
+              "max_value": 65535.0
+            }
+          ],
+          "actuators": [
+            {
+              "id": "heater",
+              "max_on_s": 30.0,
+              "cooldown_s": 5.0,
+              "required_sensors": [
+                "T1",
+                "T2",
+                "T3",
+                "T4",
+                "T5"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T2",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T3",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T4",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T5",
+                  "minimum": null,
+                  "maximum": 28.0
+                }
+              ]
+            },
+            {
+              "id": "fan",
+              "max_on_s": 60.0,
+              "cooldown_s": 5.0,
+              "required_sensors": [
+                "T1",
+                "T2",
+                "T3",
+                "T4",
+                "T5"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T2",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T3",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T4",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T5",
+                  "minimum": 18.0,
+                  "maximum": null
+                }
+              ]
+            },
+            {
+              "id": "mister",
+              "max_on_s": 5.0,
+              "cooldown_s": 60.0,
+              "required_sensors": [
+                "RH1"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "RH1",
+                  "minimum": null,
+                  "maximum": 85.0
+                }
+              ]
+            },
+            {
+              "id": "light",
+              "max_on_s": 300.0,
+              "cooldown_s": 0.0,
+              "required_sensors": [
+                "T1",
+                "LUX1"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": null,
+                  "maximum": 28.0
+                }
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "actuator_id": "heater",
+              "sensor_id": "T3",
+              "direction": "below",
+              "on_threshold": 22.0,
+              "off_threshold": 24.0,
+              "duration_s": 20.0
+            },
+            {
+              "actuator_id": "fan",
+              "sensor_id": "T3",
+              "direction": "above",
+              "on_threshold": 26.0,
+              "off_threshold": 25.0,
+              "duration_s": 30.0
+            },
+            {
+              "actuator_id": "mister",
+              "sensor_id": "RH1",
+              "direction": "below",
+              "on_threshold": 55.0,
+              "off_threshold": 65.0,
+              "duration_s": 3.0
+            }
+          ]
+        },
+        "state": {
+          "cage_id": "CAGE-001",
+          "node_id": "ESP32-001",
+          "mode": "manual",
+          "transport": "simulated",
+          "transport_connected": true,
+          "telemetry": {
+            "schema_version": 1,
+            "data_source": "simulation",
+            "message_id": "40d04794-5033-591d-b855-26d25ea25bcb",
+            "sampled_at": "2026-09-18T08:00:00+00:00",
+            "geometry_revision": 1,
+            "placement_revision": 1,
+            "readings": {
+              "T1": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T2": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T3": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T4": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T5": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "RH1": {
+                "value": 65.0,
+                "quality": "valid"
+              },
+              "LUX1": {
+                "value": 100.0,
+                "quality": "valid"
+              }
+            },
+            "actuators": {
+              "heater": false,
+              "fan": false,
+              "mister": false,
+              "light": true
+            },
+            "received_at": "2026-09-18T08:00:00+00:00"
+          },
+          "actuators": {
+            "heater": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 30.0,
+              "cooldown_s": 5.0
+            },
+            "fan": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 60.0,
+              "cooldown_s": 5.0
+            },
+            "mister": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 5.0,
+              "cooldown_s": 60.0
+            },
+            "light": {
+              "observed": {
+                "state": true,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 300.0,
+              "cooldown_s": 0.0
+            }
+          }
+        }
+      }
+    ]
+  },
+  "events": [
+    {
+      "schema_version": 1,
+      "event_id": "ca21c579-c662-53cc-b73a-a55a12ae3b71",
+      "kind": "telemetry.recorded",
+      "site_id": "STORE-001",
+      "gateway_id": "PI-001",
+      "cage_id": "CAGE-001",
+      "created_at": "2026-09-18T08:00:00+00:00",
+      "payload": {
+        "schema_version": 1,
+        "data_source": "simulation",
+        "message_id": "f7881b82-d32a-5adb-b025-d36012e9d230",
+        "sampled_at": "2026-09-18T08:00:00+00:00",
+        "geometry_revision": 1,
+        "placement_revision": 1,
+        "readings": {
+          "T1": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T2": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T3": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T4": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T5": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "RH1": {
+            "value": 65.0,
+            "quality": "valid"
+          },
+          "LUX1": {
+            "value": 100.0,
+            "quality": "valid"
+          }
+        },
+        "actuators": {
+          "heater": false,
+          "fan": false,
+          "mister": false,
+          "light": false
+        },
+        "received_at": "2026-09-18T08:00:00+00:00"
+      },
+      "event_sequence": 1
+    },
+    {
+      "schema_version": 1,
+      "event_id": "bafefa85-3423-583f-a4a4-4f6de4608438",
+      "kind": "command.updated",
+      "site_id": "STORE-001",
+      "gateway_id": "PI-001",
+      "cage_id": "CAGE-001",
+      "created_at": "2026-09-18T08:00:00+00:00",
+      "payload": {
+        "schema_version": 1,
+        "command_id": "1d807218-6838-5361-81e0-935254a25f28",
+        "site_id": "STORE-001",
+        "gateway_id": "PI-001",
+        "cage_id": "CAGE-001",
+        "node_id": "ESP32-001",
+        "actuator_id": "light",
+        "action": "on",
+        "duration_s": 5.0,
+        "created_at": "2026-09-18T08:00:00+00:00",
+        "expires_at": "2026-09-18T08:00:10+00:00",
+        "geometry_revision": 1,
+        "placement_revision": 1,
+        "source": "manual",
+        "request": {
+          "cage_id": "CAGE-001",
+          "source": "manual",
+          "request_id": "1d807218-6838-5361-81e0-935254a25f28",
+          "actuator_id": "light",
+          "action": "on",
+          "duration_s": 5.0
+        },
+        "status": "publishing",
+        "reason": null,
+        "sequence": 1
+      },
+      "event_sequence": 2
+    },
+    {
+      "schema_version": 1,
+      "event_id": "5621dfdd-209a-5582-8b25-688520bb9f10",
+      "kind": "command.updated",
+      "site_id": "STORE-001",
+      "gateway_id": "PI-001",
+      "cage_id": "CAGE-001",
+      "created_at": "2026-09-18T08:00:00+00:00",
+      "payload": {
+        "schema_version": 1,
+        "command_id": "1d807218-6838-5361-81e0-935254a25f28",
+        "site_id": "STORE-001",
+        "gateway_id": "PI-001",
+        "cage_id": "CAGE-001",
+        "node_id": "ESP32-001",
+        "actuator_id": "light",
+        "action": "on",
+        "duration_s": 5.0,
+        "created_at": "2026-09-18T08:00:00+00:00",
+        "expires_at": "2026-09-18T08:00:10+00:00",
+        "geometry_revision": 1,
+        "placement_revision": 1,
+        "source": "manual",
+        "request": {
+          "cage_id": "CAGE-001",
+          "source": "manual",
+          "request_id": "1d807218-6838-5361-81e0-935254a25f28",
+          "actuator_id": "light",
+          "action": "on",
+          "duration_s": 5.0
+        },
+        "status": "published",
+        "reason": null,
+        "sequence": 1
+      },
+      "event_sequence": 3
+    },
+    {
+      "schema_version": 1,
+      "event_id": "239cde9a-ce57-50b3-bd7f-772f646ae08f",
+      "kind": "command.updated",
+      "site_id": "STORE-001",
+      "gateway_id": "PI-001",
+      "cage_id": "CAGE-001",
+      "created_at": "2026-09-18T08:00:00+00:00",
+      "payload": {
+        "schema_version": 1,
+        "command_id": "1d807218-6838-5361-81e0-935254a25f28",
+        "site_id": "STORE-001",
+        "gateway_id": "PI-001",
+        "cage_id": "CAGE-001",
+        "node_id": "ESP32-001",
+        "actuator_id": "light",
+        "action": "on",
+        "duration_s": 5.0,
+        "created_at": "2026-09-18T08:00:00+00:00",
+        "expires_at": "2026-09-18T08:00:10+00:00",
+        "geometry_revision": 1,
+        "placement_revision": 1,
+        "source": "manual",
+        "request": {
+          "cage_id": "CAGE-001",
+          "source": "manual",
+          "request_id": "1d807218-6838-5361-81e0-935254a25f28",
+          "actuator_id": "light",
+          "action": "on",
+          "duration_s": 5.0
+        },
+        "status": "applied",
+        "reason": "",
+        "sequence": 1,
+        "acknowledged_at": "2026-09-18T08:00:00+00:00",
+        "applied_at": "2026-09-18T08:00:00+00:00"
+      },
+      "event_sequence": 4
+    },
+    {
+      "schema_version": 1,
+      "event_id": "b5e57878-3042-5e3b-8ea4-dcccfeff843c",
+      "kind": "telemetry.recorded",
+      "site_id": "STORE-001",
+      "gateway_id": "PI-001",
+      "cage_id": "CAGE-001",
+      "created_at": "2026-09-18T08:00:00+00:00",
+      "payload": {
+        "schema_version": 1,
+        "data_source": "simulation",
+        "message_id": "40d04794-5033-591d-b855-26d25ea25bcb",
+        "sampled_at": "2026-09-18T08:00:00+00:00",
+        "geometry_revision": 1,
+        "placement_revision": 1,
+        "readings": {
+          "T1": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T2": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T3": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T4": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "T5": {
+            "value": 24.0,
+            "quality": "valid"
+          },
+          "RH1": {
+            "value": 65.0,
+            "quality": "valid"
+          },
+          "LUX1": {
+            "value": 100.0,
+            "quality": "valid"
+          }
+        },
+        "actuators": {
+          "heater": false,
+          "fan": false,
+          "mister": false,
+          "light": true
+        },
+        "received_at": "2026-09-18T08:00:00+00:00"
+      },
+      "event_sequence": 5
+    }
+  ]
+}

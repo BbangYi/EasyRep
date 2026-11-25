@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "accepted_event_ids": [
+    "ca21c579-c662-53cc-b73a-a55a12ae3b71",
+    "bafefa85-3423-583f-a4a4-4f6de4608438",
+    "5621dfdd-209a-5582-8b25-688520bb9f10",
+    "239cde9a-ce57-50b3-bd7f-772f646ae08f",
+    "b5e57878-3042-5e3b-8ea4-dcccfeff843c"
+  ]
+}

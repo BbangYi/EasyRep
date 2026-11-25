@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "kind": "color_observation",
+  "dataset_kind": "real",
+  "record_id": "replace-with-observation-id",
+  "animal_id": "replace-with-confirmed-animal-id",
+  "species": "crested_gecko",
+  "enclosure_id": "replace-with-enclosure-id",
+  "observed_at": null,
+  "image": "native-rgb.png",
+  "mask": "reviewed-dorsal-mask.png",
+  "body_region": "dorsal",
+  "capture": {
+    "camera_id": "replace-with-camera-id",
+    "camera_revision": null,
+    "mode": "unknown",
+    "color_space": "unknown",
+    "illumination_revision": null,
+    "settings_revision": null,
+    "reference_revision": null,
+    "exposure_locked": false,
+    "white_balance_locked": false
+  },
+  "review": {
+    "observer": "replace-with-reviewer-id",
+    "identity_confirmed": false,
+    "skin_only": false,
+    "dry": false,
+    "sharp": false
+  }
+}

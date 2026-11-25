@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "dataset_kind": "real",
+  "animals": [],
+  "cameras": [
+    {"camera_id": "rgb-01", "kind": "rgb", "enclosure_id": "enclosure-01", "placement_revision": null, "calibration_revision": null, "model": null, "connection": "unconfigured", "expected_fps": null}
+  ],
+  "storage": {"max_session_bytes": 10737418240, "min_free_bytes": 536870912, "max_clip_bytes": 134217728, "max_clip_seconds": 120, "max_frames": 18000, "probe_timeout_seconds": 120},
+  "input": {"adapter": "finalized_file", "inbox": "../data/inbox", "poll_seconds": 1, "idle_warning_seconds": 180}
+}

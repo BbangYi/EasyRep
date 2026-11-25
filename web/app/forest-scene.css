@@ -1,0 +1,246 @@
+/* The forest is the outer frame. All working content sits on one opaque panel.
+   Change assets, frame spacing and texture strength here; globals.css owns UI. */
+.forest-scene {
+  --forest-image: url("/textures/forest-interior.webp");
+  --forest-shade: rgb(12 25 16 / 24%);
+  --workspace-inset: 16px;
+  --navigation-width: 220px;
+  --workspace-surface: #eff2e9;
+  --surface-shadow: 0 2px 5px #1e332b08;
+  background: #192b1e;
+  isolation: isolate;
+}
+
+/* Bitmap scenery stays outside the content and never intercepts input. */
+.forest-scene::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(var(--forest-shade), var(--forest-shade)), var(--forest-image) center / cover no-repeat;
+}
+
+/* One continuous workspace: no photograph behind headings, filters or data. */
+.forest-scene .app-shell {
+  margin: var(--workspace-inset);
+  margin-left: calc(var(--navigation-width) + var(--workspace-inset));
+  width: calc(100% - var(--navigation-width) - 2 * var(--workspace-inset));
+  min-height: calc(100dvh - 2 * var(--workspace-inset));
+  align-self: flex-start;
+  background: var(--workspace-surface);
+  border: 1px solid #cbd5c2;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px #06140b24;
+}
+.forest-scene .topbar {
+  background: var(--card);
+  border-radius: 11px 11px 0 0;
+}
+.forest-scene .page-content {
+  max-width: none;
+}
+.forest-scene .fleet-filters {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.forest-scene .fleet-summary button,
+.forest-scene .enclosure-card,
+.forest-scene .metric-card,
+.forest-scene .panel {
+  box-shadow: var(--surface-shadow);
+}
+.forest-scene .metric-card[aria-pressed="true"] {
+  box-shadow: inset 0 2px 0 var(--primary), var(--surface-shadow);
+}
+
+/* Solid navigation above a separate, quiet forest view. Never place text over foliage. */
+.forest-scene .habitat-sidebar {
+  background: #1d3328 !important;
+  border-right-color: #53664a55;
+}
+/* Reuses the outer forest image: no second download, video, or continuous motion. */
+.forest-scene .sidebar-forest {
+  flex: 1 1 220px;
+  min-height: 100px;
+  margin: 20px -18px 0;
+  background: linear-gradient(#1d3328, #1d332800 24%, #1d332800 78%, #1d3328), var(--forest-image) 56% 70% / auto 520px no-repeat;
+  pointer-events: none;
+}
+.chart-loading {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+@media (max-height: 780px) {
+  .forest-scene .sidebar-forest { display: none; }
+}
+.forest-scene .brand > .brand-image {
+  background: #f4f0df;
+  border: 1px solid #cecbb8;
+}
+.forest-scene .habitat-sidebar nav {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 4px;
+}
+.forest-scene .habitat-sidebar .enclosure-picker {
+  background: #263c2b;
+  border-color: #6b7c60;
+}
+.forest-scene .habitat-sidebar .sidebar-label,
+.forest-scene .habitat-sidebar .sidebar-note,
+.forest-scene .habitat-sidebar .sidebar-note small,
+.forest-scene .habitat-sidebar .profile small {
+  color: #d9e2cd;
+}
+.forest-scene .nav-item[data-active="true"] {
+  background: #e0e6ca !important;
+  color: #243722 !important;
+}
+.forest-scene .habitat-sidebar .profile {
+  border-color: #8e9b7766;
+}
+
+@media (min-width: 1600px) {
+  .forest-scene .page-enclosure {
+    padding-bottom: 8px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .forest-scene {
+    --navigation-width: 190px;
+    --workspace-inset: 12px;
+  }
+}
+@media (max-width: 767px) {
+  .forest-scene {
+    --navigation-width: 0px;
+    --workspace-inset: 8px;
+  }
+  .forest-scene::before {
+    background-position: center, 58% center;
+  }
+  .forest-scene .app-shell {
+    border-radius: 10px;
+  }
+  .forest-scene .topbar {
+    border-radius: 9px 9px 0 0;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .forest-scene .page-content {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .forest-scene .fleet-filters {
+    width: fit-content;
+    max-width: 100%;
+  }
+  .forest-scene .mobile-nav {
+    background: #f7f7ef;
+    box-shadow: 0 -3px 12px #12251a12;
+  }
+}
+
+/* A finite, skippable brand entrance. The dashboard beneath stays mounted. */
+.forest-entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #16271d;
+  animation: forest-entrance-exit var(--intro-duration) ease both;
+}
+.forest-entrance-scene {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#10251955, #10251999), var(--forest-image) center / cover no-repeat;
+  animation: forest-settle var(--intro-duration) ease-out both;
+}
+.forest-entrance-brand {
+  position: relative;
+  width: min(480px, calc(100% - 64px));
+  padding: 30px 34px;
+  background: #f4f0df;
+  border: 1px solid #e0dfcf;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px #06140b30;
+  animation: forest-brand-arrive 1000ms 150ms ease-out both;
+}
+.forest-entrance-brand .brand-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.forest-entrance-skip {
+  position: absolute;
+  bottom: max(32px, env(safe-area-inset-bottom));
+  right: max(32px, env(safe-area-inset-right));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #c9d3c488;
+  border-radius: 6px;
+  background: #182e23;
+  color: #f4f5ef;
+  font-size: 14px;
+  cursor: pointer;
+}
+.forest-entrance-skip:hover { background: #294334; }
+.forest-entrance-skip:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.forest-replay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.forest-replay:hover:not(:disabled) {
+  color: var(--primary);
+  background: var(--muted);
+}
+.forest-replay:disabled { opacity: .55; }
+@keyframes forest-settle {
+  from { transform: scale(1.025); }
+  to { transform: scale(1); }
+}
+@keyframes forest-brand-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes forest-entrance-exit {
+  0%, 78% { opacity: 1; visibility: visible; }
+  /* Even delayed JavaScript cannot leave an invisible overlay blocking the page. */
+  100% { opacity: 0; visibility: hidden; }
+}
+@media (max-width: 767px) {
+  .forest-replay { min-width: 44px; min-height: 44px; }
+  .forest-replay span { display: none; }
+  .forest-entrance-brand { padding: 24px; }
+  .forest-entrance-skip { bottom: max(24px, env(safe-area-inset-bottom)); right: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forest-entrance { display: none; }
+  .forest-entrance,
+  .forest-entrance-scene,
+  .forest-entrance-brand { animation: none !important; }
+}

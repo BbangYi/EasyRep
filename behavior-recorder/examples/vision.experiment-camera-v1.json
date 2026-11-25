@@ -1,0 +1,19 @@
+{
+  "baseline": "data/gpu-jobs/lizard-openimages-v1-01/result/diverse-full",
+  "confidence": 0.4,
+  "iou": 0.5,
+  "candidates": [{
+    "name": "camera-adapted",
+    "epochs": 30,
+    "seed": 42,
+    "training_options": {
+      "optimizer": "AdamW", "lr0": 0.0002, "lrf": 0.1,
+      "warmup_bias_lr": 0.0002, "warmup_epochs": 2.0,
+      "cos_lr": true, "patience": 10, "freeze": 0,
+      "scale": 0.4, "translate": 0.15,
+      "hsv_h": 0.015, "hsv_s": 0.5, "hsv_v": 0.4,
+      "mosaic": 0.3, "degrees": 20, "flipud": 0.15,
+      "camera_augmentation": "grayscale-v1"
+    }
+  }]
+}

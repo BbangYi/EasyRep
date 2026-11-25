@@ -1,0 +1,28 @@
+{
+  "observed_at": null,
+  "body_region": "dorsal",
+  "mask": "review-masks/replace-with-mask.png",
+  "mask_sha256": null,
+  "media_rights": {
+    "basis": null,
+    "evidence_reference": null
+  },
+  "capture": {
+    "camera_id": "replace-with-capture-device-id",
+    "camera_revision": null,
+    "mode": "unknown",
+    "color_space": "unknown",
+    "illumination_revision": null,
+    "settings_revision": null,
+    "reference_revision": null,
+    "exposure_locked": false,
+    "white_balance_locked": false
+  },
+  "review": {
+    "observer": "replace-with-intake-reviewer",
+    "identity_confirmed": false,
+    "skin_only": false,
+    "dry": false,
+    "sharp": false
+  }
+}

@@ -1,0 +1,1185 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HabitatOS Pi → SaaS ingestion contract",
+    "description": "Reference implementation. The production URL requires deployment by the SaaS operator.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:9000",
+      "description": "Local reference receiver"
+    },
+    {
+      "url": "https://habitatos.kro.kr",
+      "description": "Planned production server; not deployed by this example"
+    }
+  ],
+  "paths": {
+    "/v1/edge/health": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Health",
+        "operationId": "edgeIngestHealth",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/edge/sync": {
+      "post": {
+        "tags": [
+          "Pi ingestion"
+        ],
+        "summary": "Store sensor/command events and acknowledge durable event IDs",
+        "description": "All-or-nothing transaction. Retries with identical events return the same ACK. Empty events are valid heartbeats. Maximum JSON body: 8 MiB.",
+        "operationId": "syncGatewayEvents",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncAck"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid Pi token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Gateway/cage scope denied or simulation disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Event ID or sequence reused with different content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON body exceeds 8 MiB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistence failed; no ACK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PiBearerToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActuatorConfig": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Id"
+          },
+          "max_on_s": {
+            "type": "number",
+            "maximum": 3600.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max On S"
+          },
+          "cooldown_s": {
+            "type": "number",
+            "maximum": 86400.0,
+            "minimum": 0.0,
+            "title": "Cooldown S",
+            "default": 0
+          },
+          "required_sensors": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Required Sensors"
+          },
+          "guards": {
+            "items": {
+              "$ref": "#/components/schemas/Guard"
+            },
+            "type": "array",
+            "title": "Guards"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "max_on_s",
+          "required_sensors"
+        ],
+        "title": "ActuatorConfig"
+      },
+      "ActuatorState": {
+        "properties": {
+          "observed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "on_blocked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On Blocked Reason"
+          },
+          "max_on_s": {
+            "type": "number",
+            "maximum": 3600.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max On S"
+          },
+          "cooldown_s": {
+            "type": "number",
+            "maximum": 86400.0,
+            "minimum": 0.0,
+            "title": "Cooldown S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "observed",
+          "on_blocked_reason",
+          "max_on_s",
+          "cooldown_s"
+        ],
+        "title": "ActuatorState"
+      },
+      "CageConfig": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Id"
+          },
+          "node_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Node Id"
+          },
+          "geometry_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Geometry Revision",
+            "default": 1
+          },
+          "placement_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Placement Revision",
+            "default": 1
+          },
+          "stale_after_s": {
+            "type": "number",
+            "maximum": 300.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Stale After S",
+            "default": 15
+          },
+          "sensors": {
+            "items": {
+              "$ref": "#/components/schemas/SensorConfig"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Sensors"
+          },
+          "actuators": {
+            "items": {
+              "$ref": "#/components/schemas/ActuatorConfig"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Actuators"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/Policy"
+            },
+            "type": "array",
+            "title": "Policies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "node_id",
+          "sensors",
+          "actuators"
+        ],
+        "title": "CageConfig"
+      },
+      "CageSnapshot": {
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/CageConfig"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CageState"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "configuration",
+          "state"
+        ],
+        "title": "CageSnapshot"
+      },
+      "CageState": {
+        "properties": {
+          "cage_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Cage Id"
+          },
+          "node_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Node Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ],
+            "title": "Mode"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "simulated",
+              "mqtt"
+            ],
+            "title": "Transport"
+          },
+          "transport_connected": {
+            "type": "boolean",
+            "title": "Transport Connected"
+          },
+          "telemetry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StoredTelemetry"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actuators": {
+            "patternProperties": {
+              "^[A-Za-z0-9_-]{1,64}$": {
+                "$ref": "#/components/schemas/ActuatorState"
+              }
+            },
+            "type": "object",
+            "maxProperties": 32,
+            "title": "Actuators"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cage_id",
+          "node_id",
+          "mode",
+          "transport",
+          "transport_connected",
+          "telemetry",
+          "actuators"
+        ],
+        "title": "CageState"
+      },
+      "CommandEvent": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "event_sequence": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Event Sequence"
+          },
+          "site_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Site Id"
+          },
+          "gateway_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Gateway Id"
+          },
+          "cage_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Cage Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "kind": {
+            "type": "string",
+            "const": "command.updated",
+            "title": "Kind"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/CommandRecord"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "event_id",
+          "event_sequence",
+          "site_id",
+          "gateway_id",
+          "cage_id",
+          "created_at",
+          "kind",
+          "payload"
+        ],
+        "title": "CommandEvent"
+      },
+      "CommandFingerprint": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "actuator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Actuator Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "on",
+              "off"
+            ],
+            "title": "Action"
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 3600.0,
+            "minimum": 0.0,
+            "title": "Duration S",
+            "default": 0
+          },
+          "cage_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Cage Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "actuator_id",
+          "action",
+          "cage_id",
+          "source"
+        ],
+        "title": "CommandFingerprint"
+      },
+      "CommandRecord": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          },
+          "site_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Site Id"
+          },
+          "gateway_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Gateway Id"
+          },
+          "cage_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Cage Id"
+          },
+          "node_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Node Id"
+          },
+          "actuator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Actuator Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "on",
+              "off"
+            ],
+            "title": "Action"
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 3600.0,
+            "minimum": 0.0,
+            "title": "Duration S"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "geometry_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Geometry Revision"
+          },
+          "placement_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Placement Revision"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "request": {
+            "$ref": "#/components/schemas/CommandFingerprint"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "publishing",
+              "published",
+              "applied",
+              "rejected",
+              "expired",
+              "interrupted"
+            ],
+            "title": "Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Sequence"
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged At"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "command_id",
+          "site_id",
+          "gateway_id",
+          "cage_id",
+          "node_id",
+          "actuator_id",
+          "action",
+          "duration_s",
+          "created_at",
+          "expires_at",
+          "geometry_revision",
+          "placement_revision",
+          "source",
+          "request",
+          "status",
+          "reason",
+          "sequence"
+        ],
+        "title": "CommandRecord"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse"
+      },
+      "GatewaySnapshot": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "simulated",
+              "mqtt"
+            ],
+            "title": "Transport"
+          },
+          "healthy": {
+            "type": "boolean",
+            "title": "Healthy"
+          },
+          "cages": {
+            "items": {
+              "$ref": "#/components/schemas/CageSnapshot"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Cages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "transport",
+          "healthy",
+          "cages"
+        ],
+        "title": "GatewaySnapshot"
+      },
+      "Guard": {
+        "properties": {
+          "sensor_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Sensor Id"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sensor_id"
+        ],
+        "title": "Guard"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Observation": {
+        "properties": {
+          "state": {
+            "type": "boolean",
+            "title": "State"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "telemetry",
+              "node_ack"
+            ],
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state",
+          "occurred_at",
+          "source"
+        ],
+        "title": "Observation"
+      },
+      "Policy": {
+        "properties": {
+          "actuator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Actuator Id"
+          },
+          "sensor_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Sensor Id"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "below",
+              "above"
+            ],
+            "title": "Direction"
+          },
+          "on_threshold": {
+            "type": "number",
+            "title": "On Threshold"
+          },
+          "off_threshold": {
+            "type": "number",
+            "title": "Off Threshold"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "actuator_id",
+          "sensor_id",
+          "direction",
+          "on_threshold",
+          "off_threshold",
+          "duration_s"
+        ],
+        "title": "Policy"
+      },
+      "Reading": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "quality": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "invalid",
+              "crc_error",
+              "disconnected"
+            ],
+            "title": "Quality"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quality"
+        ],
+        "title": "Reading"
+      },
+      "SensorConfig": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Id"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "degC",
+              "percent_rh",
+              "lux"
+            ],
+            "title": "Unit"
+          },
+          "min_value": {
+            "type": "number",
+            "title": "Min Value"
+          },
+          "max_value": {
+            "type": "number",
+            "title": "Max Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "unit",
+          "min_value",
+          "max_value"
+        ],
+        "title": "SensorConfig"
+      },
+      "StoredTelemetry": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "data_source": {
+            "type": "string",
+            "enum": [
+              "sensor",
+              "simulation"
+            ],
+            "title": "Data Source",
+            "default": "sensor"
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Message Id"
+          },
+          "sampled_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Sampled At"
+          },
+          "geometry_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Geometry Revision"
+          },
+          "placement_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Placement Revision"
+          },
+          "readings": {
+            "patternProperties": {
+              "^[A-Za-z0-9_-]{1,64}$": {
+                "$ref": "#/components/schemas/Reading"
+              }
+            },
+            "type": "object",
+            "maxProperties": 64,
+            "title": "Readings"
+          },
+          "actuators": {
+            "patternProperties": {
+              "^[A-Za-z0-9_-]{1,64}$": {
+                "type": "boolean"
+              }
+            },
+            "type": "object",
+            "maxProperties": 32,
+            "title": "Actuators"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message_id",
+          "sampled_at",
+          "geometry_revision",
+          "placement_revision",
+          "readings",
+          "received_at"
+        ],
+        "title": "StoredTelemetry"
+      },
+      "SyncAck": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "site_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Site Id"
+          },
+          "gateway_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Gateway Id"
+          },
+          "accepted_event_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Accepted Event Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "site_id",
+          "gateway_id",
+          "accepted_event_ids"
+        ],
+        "title": "SyncAck"
+      },
+      "SyncRequest": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "site_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Site Id"
+          },
+          "gateway_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Gateway Id"
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Sent At"
+          },
+          "gateway": {
+            "$ref": "#/components/schemas/GatewaySnapshot"
+          },
+          "events": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TelemetryEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/CommandEvent"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "kind",
+                "mapping": {
+                  "command.updated": "#/components/schemas/CommandEvent",
+                  "telemetry.recorded": "#/components/schemas/TelemetryEvent"
+                }
+              }
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "site_id",
+          "gateway_id",
+          "sent_at",
+          "gateway",
+          "events"
+        ],
+        "title": "SyncRequest"
+      },
+      "TelemetryEvent": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "event_sequence": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Event Sequence"
+          },
+          "site_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Site Id"
+          },
+          "gateway_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Gateway Id"
+          },
+          "cage_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Cage Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "kind": {
+            "type": "string",
+            "const": "telemetry.recorded",
+            "title": "Kind"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/StoredTelemetry"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "event_id",
+          "event_sequence",
+          "site_id",
+          "gateway_id",
+          "cage_id",
+          "created_at",
+          "kind",
+          "payload"
+        ],
+        "title": "TelemetryEvent"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "PiBearerToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

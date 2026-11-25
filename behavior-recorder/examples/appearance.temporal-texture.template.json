@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_temporal_plan",
+  "series": "series.json",
+  "max_gap_hours": 24,
+  "cycles": [],
+  "textures": [
+    {
+      "plan": "texture-plan.json",
+      "artifact": "texture-v1.json",
+      "sha256": null
+    }
+  ]
+}

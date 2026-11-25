@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_alarm_runner_plan",
+  "fit_plan": "fit-plan.json",
+  "fit_run": "fit-run-v1",
+  "journal": "alarm-journal-v1",
+  "animals": ["crested-01"],
+  "role": "test",
+  "evaluation_start": null,
+  "evaluation_end": null,
+  "cadence_hours": 24,
+  "horizon_hours": 48,
+  "minimum_lead_hours": 6,
+  "max_lateness_seconds": 60,
+  "max_observation_age_hours": 24
+}

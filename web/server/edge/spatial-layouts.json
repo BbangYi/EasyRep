@@ -1,0 +1,36 @@
+{
+  "507a8d53-a6b1-49d7-aab3-1becba7a0451": {
+    "gatewayId": "PI-001",
+    "cageId": "CAGE-001",
+    "layout": {
+      "id": "pi-cage001-assumed-v1",
+      "geometryRevision": 1,
+      "placementRevision": 1,
+      "dimensionsCm": [20, 20, 30],
+      "positionsVerified": false,
+      "source": "Pi 화면 설정 · 2026-10-25",
+      "sensors": [
+        {"id": "T1", "label": "천장 SHT", "positionCm": [10, 10, 28]},
+        {"id": "T2", "label": "DS18B20", "positionCm": [2, 2, 8]},
+        {"id": "T3", "label": "DS18B20", "positionCm": [18, 18, 8]}
+      ]
+    }
+  },
+  "ef17c3f7-329b-4b14-8be4-b720c8666e31": {
+    "gatewayId": "PI-001",
+    "cageId": "CAGE-002",
+    "layout": {
+      "id": "cage002-presentation-assumed-v1",
+      "geometryRevision": 1,
+      "placementRevision": 1,
+      "dimensionsCm": [20, 20, 30],
+      "positionsVerified": false,
+      "source": "등록 센서 배치",
+      "sensors": [
+        {"id": "T1", "label": "천장 SHT", "positionCm": [10, 10, 28]},
+        {"id": "T2", "label": "DS18B20", "positionCm": [2, 2, 8]},
+        {"id": "T3", "label": "DS18B20", "positionCm": [18, 18, 8]}
+      ]
+    }
+  }
+}

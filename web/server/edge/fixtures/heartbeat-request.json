@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "sent_at": "2026-09-18T08:00:00+00:00",
+  "gateway": {
+    "version": "0.3.0",
+    "transport": "simulated",
+    "healthy": true,
+    "cages": [
+      {
+        "configuration": {
+          "id": "CAGE-001",
+          "node_id": "ESP32-001",
+          "geometry_revision": 1,
+          "placement_revision": 1,
+          "stale_after_s": 15.0,
+          "sensors": [
+            {
+              "id": "T1",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T2",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T3",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T4",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "T5",
+              "unit": "degC",
+              "min_value": -20.0,
+              "max_value": 60.0
+            },
+            {
+              "id": "RH1",
+              "unit": "percent_rh",
+              "min_value": 0.0,
+              "max_value": 100.0
+            },
+            {
+              "id": "LUX1",
+              "unit": "lux",
+              "min_value": 0.0,
+              "max_value": 65535.0
+            }
+          ],
+          "actuators": [
+            {
+              "id": "heater",
+              "max_on_s": 30.0,
+              "cooldown_s": 5.0,
+              "required_sensors": [
+                "T1",
+                "T2",
+                "T3",
+                "T4",
+                "T5"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T2",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T3",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T4",
+                  "minimum": null,
+                  "maximum": 28.0
+                },
+                {
+                  "sensor_id": "T5",
+                  "minimum": null,
+                  "maximum": 28.0
+                }
+              ]
+            },
+            {
+              "id": "fan",
+              "max_on_s": 60.0,
+              "cooldown_s": 5.0,
+              "required_sensors": [
+                "T1",
+                "T2",
+                "T3",
+                "T4",
+                "T5"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T2",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T3",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T4",
+                  "minimum": 18.0,
+                  "maximum": null
+                },
+                {
+                  "sensor_id": "T5",
+                  "minimum": 18.0,
+                  "maximum": null
+                }
+              ]
+            },
+            {
+              "id": "mister",
+              "max_on_s": 5.0,
+              "cooldown_s": 60.0,
+              "required_sensors": [
+                "RH1"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "RH1",
+                  "minimum": null,
+                  "maximum": 85.0
+                }
+              ]
+            },
+            {
+              "id": "light",
+              "max_on_s": 300.0,
+              "cooldown_s": 0.0,
+              "required_sensors": [
+                "T1",
+                "LUX1"
+              ],
+              "guards": [
+                {
+                  "sensor_id": "T1",
+                  "minimum": null,
+                  "maximum": 28.0
+                }
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "actuator_id": "heater",
+              "sensor_id": "T3",
+              "direction": "below",
+              "on_threshold": 22.0,
+              "off_threshold": 24.0,
+              "duration_s": 20.0
+            },
+            {
+              "actuator_id": "fan",
+              "sensor_id": "T3",
+              "direction": "above",
+              "on_threshold": 26.0,
+              "off_threshold": 25.0,
+              "duration_s": 30.0
+            },
+            {
+              "actuator_id": "mister",
+              "sensor_id": "RH1",
+              "direction": "below",
+              "on_threshold": 55.0,
+              "off_threshold": 65.0,
+              "duration_s": 3.0
+            }
+          ]
+        },
+        "state": {
+          "cage_id": "CAGE-001",
+          "node_id": "ESP32-001",
+          "mode": "manual",
+          "transport": "simulated",
+          "transport_connected": true,
+          "telemetry": {
+            "schema_version": 1,
+            "data_source": "simulation",
+            "message_id": "40d04794-5033-591d-b855-26d25ea25bcb",
+            "sampled_at": "2026-09-18T08:00:00+00:00",
+            "geometry_revision": 1,
+            "placement_revision": 1,
+            "readings": {
+              "T1": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T2": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T3": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T4": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "T5": {
+                "value": 24.0,
+                "quality": "valid"
+              },
+              "RH1": {
+                "value": 65.0,
+                "quality": "valid"
+              },
+              "LUX1": {
+                "value": 100.0,
+                "quality": "valid"
+              }
+            },
+            "actuators": {
+              "heater": false,
+              "fan": false,
+              "mister": false,
+              "light": true
+            },
+            "received_at": "2026-09-18T08:00:00+00:00"
+          },
+          "actuators": {
+            "heater": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 30.0,
+              "cooldown_s": 5.0
+            },
+            "fan": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 60.0,
+              "cooldown_s": 5.0
+            },
+            "mister": {
+              "observed": {
+                "state": false,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 5.0,
+              "cooldown_s": 60.0
+            },
+            "light": {
+              "observed": {
+                "state": true,
+                "occurred_at": "2026-09-18T08:00:00+00:00",
+                "source": "telemetry"
+              },
+              "on_blocked_reason": null,
+              "max_on_s": 300.0,
+              "cooldown_s": 0.0
+            }
+          }
+        }
+      }
+    ]
+  },
+  "events": []
+}

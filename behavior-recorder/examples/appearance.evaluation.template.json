@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_evaluation_plan",
+  "experiment_id": "replace-with-versioned-experiment-id",
+  "dataset_kind": "real",
+  "feature_version": "past-only-reviewed-srgb-v1",
+  "mode": "future_cycle",
+  "fit_cutoff": null,
+  "evaluation_start": null,
+  "evaluation_end": null,
+  "labels_as_of": null,
+  "timelines": [
+    {"plan": "temporal-plan.json", "timeline": "temporal-dataset-v1.json", "sha256": null}
+  ],
+  "anchors": [{"animal_id": "replace-with-confirmed-animal-id", "record_id": "replace-with-frozen-observation-id"}],
+  "minimums": {"train_cycles": null, "train_animals": null, "evaluation_cycles": null, "evaluation_animals": null},
+  "acceptance": {"min_scored_fraction": null, "max_mean_interval_error_hours": null, "min_relative_error_reduction": null},
+  "observer": "replace-with-reviewer-id",
+  "evidence_reference": "Replace with predeclared split, observation selection and acceptance rationale; this template is not data"
+}

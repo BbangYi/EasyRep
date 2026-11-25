@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · EasyRep{% endblock %}
+{% block width %}medium{% endblock %}
+{% block content %}
+<a class="back" href="{{ back }}">돌아가기</a>
+<section class="card">
+  <h1>{{ title }}</h1>
+  <p class="muted">{{ description }}</p>
+  {% if record %}
+    <dl class="account-summary">
+      <dt>사육장</dt><dd>{{ record.enclosure.name }}</dd>
+      <dt>종류</dt><dd>{{ record.get_kind_display }}</dd>
+      <dt>발생 시각</dt><dd>{{ record.occurred_at|date:"Y.m.d H:i" }} KST</dd>
+      <dt>내용</dt><dd>{{ record.note|linebreaksbr }}{% if record.weight_g %} · {{ record.weight_g }} g{% endif %}</dd>
+    </dl>
+  {% endif %}
+  {% if record.voided_at %}
+    <p class="notice">이미 취소된 기록입니다. {{ record.void_reason }}</p>
+  {% else %}
+    <form method="post" {% if care_enclosure %}id="care-form" data-draft-key="habitatos:care-draft:{{ user.pk }}:{{ care_enclosure.pk }}" data-bound="{{ form.is_bound|yesno:'true,false' }}"{% endif %}>
+      {% csrf_token %}
+      {{ form.as_p }}
+      {% if care_enclosure %}<p class="muted" id="care-draft-status" role="status">작성 중인 내용은 이 탭에서 최대 24시간 임시 보관됩니다.</p><button type="button" id="care-draft-discard" hidden>임시 내용 지우기</button>{% endif %}
+      <div class="actions"><a href="{{ back }}" class="button">돌아가기</a><button class="primary" type="submit">{{ submit_label }}</button></div>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

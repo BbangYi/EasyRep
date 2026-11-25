@@ -1,0 +1,4 @@
+.public-materials .live-main { margin: 16px; }
+@media (max-width: 560px) {
+  .public-materials .live-main { margin: 8px; }
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_context_plan",
+  "dataset_kind": "real",
+  "animal_id": null,
+  "enclosure_id": null,
+  "observer": null,
+  "evidence_reference": null,
+  "max_clock_error_ms": null,
+  "behaviour_window_seconds": null,
+  "min_behaviour_coverage": null,
+  "sensors": [
+    {
+      "feature": "temperature_c",
+      "sensor_id": null,
+      "unit": "Cel",
+      "max_age_seconds": null,
+      "geometry_revision": null,
+      "placement_revision": null
+    },
+    {
+      "feature": "humidity_percent",
+      "sensor_id": null,
+      "unit": "%RH",
+      "max_age_seconds": null,
+      "geometry_revision": null,
+      "placement_revision": null
+    }
+  ],
+  "anchors": [
+    {
+      "record_id": null,
+      "observed_at": null,
+      "as_of": null,
+      "observed_clock": {
+        "source": "unknown",
+        "accuracy_ms": null
+      },
+      "as_of_clock": {
+        "source": "unknown",
+        "accuracy_ms": null
+      }
+    }
+  ],
+  "sources": [
+    {
+      "kind": "sensors",
+      "path": "context-sensors.json",
+      "sha256": null
+    },
+    {
+      "kind": "behaviour",
+      "path": "context-behaviour.json",
+      "sha256": null
+    }
+  ]
+}

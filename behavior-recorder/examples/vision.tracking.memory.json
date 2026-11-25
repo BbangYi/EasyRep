@@ -1,0 +1,16 @@
+{
+  "association_overlap_iou": 0.3,
+  "camera_motion": "background-affine-v1",
+  "confidence": 0.4,
+  "inference_image_size": 640,
+  "inference_slicing": "off",
+  "max_gap_seconds": 0.6,
+  "max_step_diagonals": 0.15,
+  "nms_iou": 0.5,
+  "sample_fps": 2,
+  "schema_version": 1,
+  "species": "lizard",
+  "track_lost_seconds": 1.0,
+  "tracking_revision": 2,
+  "zones": {}
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_kind": "test",
+  "animals": [{"animal_id": "test-subject", "species": "unknown"}],
+  "cameras": [
+    {"camera_id": "rgb-01", "kind": "rgb", "enclosure_id": "enclosure-01", "placement_revision": null, "calibration_revision": null, "model": null, "connection": "finalized_file", "expected_fps": 5},
+    {"camera_id": "thermal-01", "kind": "thermal_numeric", "enclosure_id": "enclosure-01", "placement_revision": null, "calibration_revision": null, "model": null, "connection": "unconfigured", "expected_fps": null}
+  ],
+  "storage": {"max_session_bytes": 1073741824, "min_free_bytes": 268435456, "max_clip_bytes": 134217728, "max_clip_seconds": 120, "max_frames": 18000, "probe_timeout_seconds": 60},
+  "input": {"adapter": "finalized_file", "inbox": "../data/inbox", "poll_seconds": 1, "idle_warning_seconds": 30}
+}

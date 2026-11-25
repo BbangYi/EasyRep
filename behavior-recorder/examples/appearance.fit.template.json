@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "appearance_fit_plan",
+  "experiment_id": "replace-with-frozen-experiment-id",
+  "cohort": "frozen-cohort-v1.json",
+  "cohort_sha256": null,
+  "algorithm": "cycle-weighted-ridge-v1",
+  "features": ["elapsed_hours", "red_delta", "green_delta", "blue_delta", "saturation_delta", "value_delta"],
+  "regularization": 1,
+  "max_target_interval_hours": null,
+  "minimum_train_rows": null,
+  "max_abs_z": null,
+  "max_prediction_hours": null,
+  "seed": null,
+  "execution_host": "DESKTOP-GMQFQTR",
+  "observer": "replace-with-reviewer-id",
+  "evidence_reference": "Replace with the fixed feature, uncertainty, sample and support criteria rationale; this template is not biological data"
+}

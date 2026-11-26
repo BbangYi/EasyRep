@@ -1,22 +1,65 @@
 # 합성 환경 MLP
 
-**현재 상태: 최종 가중치와 학습 보고서의 원본 확인 대기.** 이 폴더에는 [전달 manifest](manifest.json)가 있으며, 아직 완전한 추론 묶음이 아닙니다. Pi의 기본 모델 폴더와 기존 사용자 모델 경로에서 원본을 찾지 못했습니다. GPU의 파일을 확인하기 전에는 크기·해시·실제 학습 버전을 채우지 않습니다.
+이 모델은 **최근 온습도 변화와 앞으로의 분무 계획을 보고, 환경이 어떻게 달라질지 예측**합니다. MLP는 여러 계산 층을 연결한 신경망입니다.
 
-정본 [predictive_misting.py](../../gateway/experiments/environment_sim/predictive_misting.py)는 가정한 온습도·표면온도 Plant, 합성 데이터 생성, PyTorch 학습, NumPy 추론과 평가를 포함합니다. MLP는 `210 → 128 → 128 → 240`, 은닉층은 tanh이며 30분 이력과 60분 후보 분무 동작으로 60분의 네 채널을 예측합니다. 1·2·3개 온도센서 입력 변형을 학습하고, 현재 [CUDA worker](../../gateway/experiments/environment_sim/gpu_predict.py)는 3센서 모델을 사용합니다.
+**현재는 코드와 파일 목록이 준비되어 있고, 최종 가중치와 학습 보고서는 원본 확인 대기입니다.** 이 저장소만 받아서 기존 학습 모델의 예측을 바로 실행할 수 있는 상태는 아닙니다. 확인한 Pi 경로에는 해당 파일이 없으며, GPU 원본을 확인한 뒤 파일 크기·해시·학습 버전을 기록해야 합니다.
 
-입력 스케일의 분무 시간 기준은 기존 가중치 호환을 위해 6초로 유지되지만, 현재 [실험 설정](../../gateway/experiments/environment_sim/simulation_config.json)의 후보 RUN은 최대 3초입니다. 이 차이를 임의로 바꾸지 않습니다. Plant 계수·분무 효과는 실측 보정 전의 가정이고 결과는 `SIMULATION_ONLY` 또는 `SHADOW_ONLY`입니다. 모델의 제안을 실물 동작 승인으로 사용하지 않습니다.
+**목적에 따라 읽기**
 
-Pi 요청·결과 검증은 [`habitat/compute/environment.py`](../../gateway/habitat/compute/environment.py), GPU API·프로세스 수명은 [`habitat/gpu/environment_api.py`](../../gateway/habitat/gpu/environment_api.py)가 담당합니다. 데이터셋 생성과 예측 평가 코드는 같은 `gateway/habitat/compute/`에 있으며, 이 코드의 존재가 실측 데이터로 재학습한 모델이 있다는 뜻은 아닙니다.
+- 모델을 사용할 사람: [입력과 출력](#입력하면-무엇이-나오나요) → [필요한 파일](#코드와-필요한-파일) → [실행 준비](#지금-확인할-수-있는-것과-가중치-확보-후-실행)
+- 코드를 수정할 사람: [프로그램 연결](#프로그램은-어떻게-연결되나요) → [구현 시 주의점](#구현을-수정할-때-알아둘-내용)
 
-## 원본 확보 후 기록할 항목
+## 입력하면 무엇이 나오나요?
 
-최종 파일은 정확히 `model_1sensors.npz`, `model_2sensors.npz`, `model_3sensors.npz`, `training_report.json`입니다. 각 파일의 SHA-256·바이트 수, 모델 버전과 실제 저장 위치를 manifest에 기록합니다. 학습 보고서의 모델별 `weights_sha256`을 원본 파일과 대조하고, 학습 소스·설정 해시, 학습 시각, 데이터 분할, 선택 epoch와 검증 손실을 보존합니다. 현재 소스와 학습 당시 소스가 다르면 그 차이를 명시하며 새 학습으로 덮어쓰지 않습니다. GPU 추론에는 특히 3센서 가중치와 보고서의 일치가 필요합니다.
+| 구분 | 내용 |
+|---|---|
+| 과거 입력 | 최근 30분의 온도·습도·모델상 따뜻한/차가운 표면온도·실행된 분무 시간 |
+| 계획 입력 | 앞으로 60분 동안의 후보 분무 시간표 |
+| 출력 | 앞으로 60분의 공기 온도·상대습도·따뜻한 표면 온도·차가운 표면 온도 예측값. API는 5·10·30·60분 뒤 값을 전달 |
 
-작은 최종 파일은 검토된 버전 디렉터리에 한정해 Git에 포함하고, 크기상 별도 배포가 필요하면 Release asset의 URI·해시·크기를 기록합니다. 그 결정 전에는 가짜 파일·빈 가중치·추정 해시를 추가하지 않습니다. 원본 학습 데이터와 중간 체크포인트는 이 폴더에 넣지 않습니다.
+예를 들어 같은 과거 이력을 넣고 ‘분무하지 않는 계획’과 ‘처음에 3초 분무하는 계획’을 비교할 수 있습니다. 모델은 각 계획에 따른 온습도 변화를 계산합니다. 여기에는 실제 예측 수치를 적지 않았으며, 미래 센서값을 입력으로 미리 주지도 않습니다.
 
-## 검증된 버전 실행
+**현재 학습 데이터는 컴퓨터로 만든 합성 데이터입니다.** 온습도와 분무 효과를 계산하는 가상 사육장 코드를 사용하며, 그 계수는 현장에서 보정되지 않았습니다. `SIMULATION_ONLY`는 가상 입력으로 시험하는 모드이고, `SHADOW_ONLY`는 실측 이력을 넣어 예측만 비교하는 모드입니다. 두 모드 모두 실제 장치를 제어하지 않습니다. 예측이나 분무 제안이 나왔다고 실제 장치를 작동시킬 권한이 생기는 것은 아닙니다.
 
-원본 확인 후 네 파일을 **소스 밖의 모델 실행 디렉터리**에 준비합니다. 아래 `VERIFIED_VERSION`은 실제 검증한 버전으로 바꾸며 현재 존재하는 버전 이름이 아닙니다. 평가 과정은 같은 디렉터리에 결과 JSON을 쓰므로 Git 소스 폴더를 실행 출력 경로로 사용하지 않습니다. NumPy와 기존 모델 실행 환경이 필요합니다.
+## 코드와 필요한 파일
+
+학습·예측 **코드**는 계산 방법이고, **가중치**는 학습으로 얻은 숫자입니다. 다음 네 파일의 원본을 확인해야 합니다.
+
+| 파일 | 용도 |
+|---|---|
+| `model_1sensors.npz` | 온도센서 1개 입력으로 학습한 가중치 |
+| `model_2sensors.npz` | 온도센서 2개 입력으로 학습한 가중치 |
+| `model_3sensors.npz` | 온도센서 3개 입력으로 학습한 가중치. GPU 예측 코드가 요구하는 파일 |
+| `training_report.json` | 학습 시각·소스·설정·데이터 분할·검증 결과와 가중치 해시 |
+
+[manifest.json](manifest.json)의 `null` 값은 파일이 아직 검증되지 않았다는 뜻입니다. 원본 확보 후 각 파일의 SHA-256과 크기를 채우고, 보고서의 `weights_sha256`과 실제 가중치가 같은지 확인합니다. 학습 당시 소스가 현재 소스와 다르면 그 차이도 기록합니다. 작은 최종 파일은 검토한 버전 폴더에, 큰 파일은 Release asset에 두고 위치를 안내할 예정입니다. 원본 데이터와 중간 학습 파일은 포함하지 않습니다.
+
+## 프로그램은 어떻게 연결되나요?
+
+```text
+Pi가 이력을 검사 → 별도 GPU에 예측 요청 → GPU가 가중치로 계산
+                                        → Pi가 결과의 대상·시각·형식을 검사
+```
+
+| 확인할 내용 | 코드 |
+|---|---|
+| 가상 환경·데이터 생성·학습·CPU 예측·평가 | [predictive_misting.py](../../gateway/experiments/environment_sim/predictive_misting.py) |
+| GPU에서 예측하는 프로그램 | [gpu_predict.py](../../gateway/experiments/environment_sim/gpu_predict.py) |
+| Pi의 요청과 결과 검사 | [environment.py](../../gateway/habitat/compute/environment.py) |
+| GPU API와 예측 프로세스 관리 | [environment_api.py](../../gateway/habitat/gpu/environment_api.py) |
+| 실험 조건 | [simulation_config.json](../../gateway/experiments/environment_sim/simulation_config.json) |
+
+별도의 [데이터셋 생성 코드](../../gateway/habitat/compute/environment_dataset.py)와 [평가 코드](../../gateway/habitat/compute/environment_evaluation.py)도 있습니다. 이 도구가 있다는 사실만으로 실측 데이터 재학습이 완료된 것은 아닙니다.
+
+## 지금 확인할 수 있는 것과 가중치 확보 후 실행
+
+지금은 저장소 최상위 폴더에서 파일 목록의 JSON 형식을 확인할 수 있습니다. 이 명령은 모델 평가나 장치 제어를 하지 않습니다.
+
+```sh
+python3 -m json.tool models/environment-mlp/manifest.json
+```
+
+가중치와 보고서를 검증한 뒤에는 네 파일을 **소스 밖의 모델 실행 폴더**에 놓습니다. 다음 명령은 NumPy가 설치된 모델 실행 환경에서 사용합니다. 경로 전체를 실제 폴더로 바꾸세요. `VERIFIED_VERSION`은 예시 이름입니다.
 
 ```sh
 cd gateway
@@ -24,4 +67,10 @@ export HABITAT_ENV_MODEL_DIR="/absolute/runtime/models/environment-mlp/VERIFIED_
 python3 experiments/environment_sim/predictive_misting.py --evaluate --check
 ```
 
-이 명령은 기존 가중치를 평가하며 새 학습이나 장치 제어를 실행하지 않습니다. GPU 서비스는 같은 `HABITAT_ENV_MODEL_DIR`을 자식 worker에 전달하고 CUDA 실행 환경을 별도로 사용합니다. [GPU 서비스 안내](../../gateway/docs/operations/gpu-service.md)의 설치·검증 절차를 따르며, 가중치 전달 완료·합성 평가 통과·실물 환경 검증을 구분합니다.
+평가 결과 JSON은 지정한 폴더에 저장됩니다. 기존 가중치를 평가하는 명령이며 새로 학습하거나 장치를 작동시키지는 않습니다. GPU 서비스도 같은 `HABITAT_ENV_MODEL_DIR`로 모델 위치를 받지만, CUDA 실행 환경은 별도로 준비합니다. [GPU 서비스 안내](../../gateway/docs/operations/gpu-service.md)를 참고하세요.
+
+## 구현을 수정할 때 알아둘 내용
+
+모델 크기는 `210 → 128 → 128 → 240`이며 중간 층은 tanh 함수를 사용합니다. 입력 210개는 ‘30분 × 5개 이력값 + 60분 분무 계획’, 출력 240개는 ‘60분 × 4개 환경값’입니다. 온도센서 1·2·3개 모델은 사용하지 않는 센서 입력을 가리는 방식으로 구분합니다.
+
+분무 시간 입력은 기존 가중치와 맞추기 위해 **6초를 기준으로 나눠서** 모델에 넣습니다. 현재 실험에서 비교하는 분무 RUN은 **최대 3초**입니다. 입력 숫자의 환산 기준과 허용 동작 시간은 서로 다른 값이므로, 6을 임의로 3으로 바꾸면 기존 가중치와 맞지 않게 됩니다. 합성 평가 통과와 실제 사육장 검증은 별도로 진행해야 합니다.

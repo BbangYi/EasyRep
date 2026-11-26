@@ -1,123 +1,248 @@
-# DFR1172 native H.264 camera node
+# DFR1172 카메라에서 H.264 영상을 보내는 펌웨어
 
-This is the native successor to `../main.py`. It runs on DFRobot FireBeetle 2
-ESP32-P4 DFR1172 with silicon **before revision 3.00**, 16 MB flash and PSRAM,
-an OV5647 CSI sensor, and the onboard ESP32-C6 Wi-Fi coprocessor. It does not
-change any cage sensor, pump, or IR output. Existing MicroPython files remain
-available for rollback; this firmware changes the P4 application and partition
-layout, so back up the **whole flash and private config before installation**.
+이 프로그램은 TOP·FRONT 카메라의 **ESP32-P4 보드**에서 실행됩니다.
+카메라가 영상을 H.264로 압축해 Pi로 보내면, Pi는 영상 내용을 다시
+압축하지 않고 중계할 수 있습니다. 사육장 온습도 센서와 IR 조명은
+별도의 BB6 보드가 담당합니다. 이 카메라 펌웨어는 센서·펌프·IR 출력을
+변경하지 않습니다.
 
-## Pipeline and contract
+**펌웨어**는 보드 안에서 실행되는 프로그램입니다. **빌드**는 소스에서
+실행 파일을 만드는 과정이고, **업로드**는 그 파일을 보드에 기록하는
+과정입니다. 아래 빌드 명령만 실행하면 실제 보드는 바뀌지 않습니다.
 
-`OV5647 → P4 ISP packed YUV420 → P4 hardware H.264 → RTSP/TCP → Pi stream copy`
+기존 MicroPython 방식의 소스는 [상위 폴더의 `main.py`](../main.py)에
+남아 있습니다. 이번에는 MicroPython 해석기 없이 보드에서 직접 실행되는
+**네이티브** 프로그램을 사용합니다. P4에서 실행되는 프로그램과 플래시의
+저장 구역 구성도 바뀝니다. 실제 설치 전에는 **전체 플래시와 비공개 설정을
+백업**해야 합니다. `main.py`만 보관하는 것으로 전체 복구를 대신할 수는 없습니다.
 
-The pinned Arduino SDK enables OV5647 **800 × 800**, sensor capture at 50 fps.
-The capture task drains that input continuously and encodes 20 fps at a target
-2,000,000 bit/s, Baseline profile, GOP 20. It does not upscale or claim 1080p.
-The hardware encoder prepends SPS/PPS at each IDR. The firmware checks those NAL
-types and Baseline profile before advertising readiness. Actual optical quality,
-Wi-Fi throughput, and timing must still be measured on the installed unit.
+**목적에 따라 읽기**
 
-CSI output explicitly requests **limited-range BT.601 YUV** and verifies the
-negotiated format. The SDK's default is full-range YUV while this hardware
-encoder does not set SPS video-signal metadata; ordinary players interpret it
-as limited range. In the first hardware capture, 98.6% of decoded luma samples
-were below code 16 and therefore displayed as black. The explicit ISP range
-conversion corrects that mismatch before H.264 encoding. It does not establish
-adequate scene illumination or optical IR sensitivity. The encoder API does not
-expose a VUI color-matrix setting; consumers should retain the documented BT.601
-matrix instead of inferring a matrix solely from image dimensions.
+- 설치 담당자: [지원 대상과 현재 확인 범위](#지원-대상과-현재-확인-범위) → [빌드 준비](#1-빌드에-필요한-도구-준비) → [파일 준비와 빌드](#2-필요한-파일을-받고-빌드) → [설정](#3-설치-후-장치-정보와-wi-fi-설정) → [연결 확인](#4-pi에서-확인할-주소)
+- 개발자: [영상 전달 과정](#영상이-전달되는-과정) → [영상 형식과 재연결](#개발자-참고-영상-형식과-재연결-처리) → [색 범위 문제](#개발자-참고-화면이-검게-보였던-문제) → [USB 명령과 진단값](#개발자-참고-usb-명령과-센서-진단값)
 
-Two encoded frames are the maximum queue. If the reader falls behind, the queue
-is cleared and the producer waits for an IDR; it does not resume at a dependent
-P-frame. The video consumer never blocks camera capture. HTTP identity remains
-separate from the RTSP connection. A separate bounded latest-IDR cache supplies
-SPS/PPS when RTSP DESCRIBE requests codec data before PLAY.
+## 지원 대상과 현재 확인 범위
 
-- HTTP `:5000/identity`: public identity schema 2, only available with HTTP 200
-  after the sensor probe, negotiated format, and encoded IDR succeed. Otherwise
-  HTTP 503. Existing site/gateway/cage/camera/view/device_type values are retained.
-- RTSP TCP `:8554/stream`: H.264; no JPEG conversion on the Pi.
-- HTTP `:5000/health`: ready/frame/drop/error counters, no credentials.
-- Wi-Fi reconnect and IP change restart the RTSP listener on the new address.
-- The Pi must verify the H.264 SPS dimensions and actual stream before updating
-  the registered camera dimensions. This migration changes 800×640 to 800×800.
+| 항목 | 이 코드의 대상 |
+|---|---|
+| 보드 | DFRobot FireBeetle 2 ESP32-P4, DFR1172 |
+| P4 칩 리비전 | **3.00 미만**. 확인한 실물은 1.3 |
+| 메모리 | 플래시 16 MB, PSRAM 16 MB 이상 |
+| 카메라 센서 | CSI 연결 OV5647 |
+| 무선 연결 | 보드에 내장된 ESP32-C6를 통한 Wi-Fi |
 
-Public identity additions are `stream_transport: "rtsp_tcp"`, `codec: "h264"`,
-`stream_port: 8554`, `stream_path: "/stream"`, `width: 800`, `height: 800`,
-`fps: 20`, `bitrate_bps: 2000000`, `gop_frames: 20`, `profile: "baseline"`,
-`sps_pps_at_idr: true`, `color_range: "limited"`, `color_matrix: "bt601"`.
-The color fields attest to the verified CSI output settings; the Pi may label
-the matching H.264 SPS color metadata during stream copy, without decoding or
-changing encoded picture slices. Discovery must derive the URL from the probed host, not
-accept arbitrary URLs from a device. Camera transport is local to the store LAN;
-existing Gateway/SaaS authentication remains the external access boundary.
+2026-11-26 확인 기준으로 FRONT는 이 H.264 펌웨어를 사용합니다.
+TOP(`RGB-001`)은 네이티브 방식에서 촬영 시간 초과(`capture_timeout`)가
+발생해 기존 방식으로 되돌렸습니다. 따라서 두 대 모두에 같은 결과가
+보장된 상태는 아닙니다. 광학 화질, Wi-Fi 전송 성능, 지연은 설치한 보드와
+현장 조건에서 각각 확인해야 합니다.
 
-## Reproducible build
+칩 리비전 3 전용 ESP-VISION 사전 빌드 파일을 리비전 1.3 보드에 사용하면
+안 됩니다. 아래 빌드 도구는 `ChipVariant=prev3`를 선택합니다.
 
-Install Arduino CLI and the **Espressif Arduino ESP32 core 3.3.12**. This includes
-IDF v5.5.5, esp_video 2.4.1, esp_cam_sensor 2.4.0, and esp_h264 1.3.8.
-The DFRobot variant configures C6 SDIO pins 14–19 and reset 54; the CSI SCCB
-pins are SDA 7 / SCL 8. No store-specific pins or credentials are compiled in.
+## 영상이 전달되는 과정
+
+```text
+OV5647 촬영 → P4의 영상 처리 → P4의 H.264 하드웨어 압축
+           → Wi-Fi의 RTSP/TCP 연결 → Pi에서 재압축 없이 중계
+```
+
+RTSP는 영상의 연결과 재생을 요청하는 규칙이고, TCP는 데이터를 순서대로
+전달하는 통신 방식입니다. 이 펌웨어는 두 방식을 함께 사용합니다.
+
+센서 입력은 **800 × 800, 초당 50프레임**이며, 프로그램이 그 입력을 계속
+받으면서 **초당 20프레임**을 압축해 보냅니다. 목표 전송률은
+**2,000,000 bit/s(약 2 Mbps)**입니다. 이 값은 압축 설정의 목표치이며
+네트워크 전송량이나 지연을 보장하는 값은 아닙니다.
+
+영상 크기를 인위적으로 늘리지 않으며 1080p 영상으로 표시하지 않습니다.
+이전 800 × 640 영상에서 800 × 800으로 바뀌므로 Pi는 실제 수신 영상의
+크기를 검증한 뒤 등록 정보를 갱신해야 합니다.
+
+## 1. 빌드에 필요한 도구 준비
+
+모든 명령은 저장소의 `gateway/` 폴더에서 실행합니다. Arduino CLI와
+**Espressif Arduino ESP32 core 3.3.12**를 먼저 설치하세요. 해당 SDK에
+포함된 버전은 IDF 5.5.5, esp_video 2.4.1, esp_cam_sensor 2.4.0,
+esp_h264 1.3.8입니다.
+
+보드 설정은 DFRobot용 항목을 사용합니다. 내부 C6 연결은 SDIO GPIO14–19와
+리셋 GPIO54, 카메라 제어선은 SDA GPIO7 / SCL GPIO8입니다. 이 값은
+보드 내부 연결을 설명한 것이며 BB6에 점퍼선을 추가하라는 뜻이 아닙니다.
+매장별 비밀번호나 핀 설정을 펌웨어에 넣어 빌드하지 않습니다.
+
+## 2. 필요한 파일을 받고 빌드
 
 ```bash
 python3 firmware/camera_node/h264_node/prepare_dependencies.py --cache /tmp/habitat-camera-h264
 python3 firmware/camera_node/h264_node/build.py --cache /tmp/habitat-camera-h264
 ```
 
-The first command downloads only official Espressif `esp-adf-libs` at the commit
-in `dependencies.lock.json`, verifies each pinned Git blob ID, and retains its
-license files. The build is then offline and rechecks cached dependencies.
-`esp_media_protocols` provides the RTSP server and RTP packetization;
-`media_lib_sal` is compiled from the same commit. No custom RTP implementation
-or dependency binary is stored in Git.
+첫 번째 명령은 `dependencies.lock.json`에 지정한 Espressif 공식
+`esp-adf-libs` 버전의 파일을 받습니다. 각 파일의 Git 객체 해시를 대조하고
+라이선스 파일도 보관합니다. 이미 받은 파일이 검증을 통과하면 재사용합니다.
 
-The output directory contains `flash-manifest.json` with hashes and offsets:
-bootloader `0x2000`, partitions `0x8000`, OTA selection `0xe000`, app `0x10000`.
-The build never opens USB or uploads. Use the manifest, verify the actual chip
-and USB serial, and retain a tested full-flash rollback before a controlled
-installation. Do not use the revision-3-only ESP-VISION prebuilt on revision1.3.
+두 번째 명령은 준비된 파일을 다시 검증한 뒤 오프라인으로 빌드합니다.
+RTSP 서버와 영상 패킷 처리는 공식 `esp_media_protocols` 라이브러리를
+사용하고, 보조 코드인 `media_lib_sal`은 같은 버전의 소스에서 컴파일합니다.
+별도 RTP 구현이나 다운로드한 라이브러리 바이너리를 Git에 저장하지 않습니다.
 
-## Private provisioning over USB CDC
+기본 Arduino CLI 위치에서 실행 파일을 찾지 못하면 `build.py`의
+`--arduino-cli` 인자로 설치한 실행 파일 경로를 지정할 수 있습니다.
 
-At 115200 baud, send one newline-terminated line:
+결과는 `/tmp/habitat-camera-h264/build/`에 생깁니다.
+`flash-manifest.json`에는 파일 해시와 보드에 기록할 주소가 들어 있습니다.
+**이 명령들은 USB를 열거나 보드에 업로드하지 않습니다.**
+
+| 결과 영역 | 기록 주소 |
+|---|---|
+| 부트로더 | `0x2000` |
+| 파티션 정보 | `0x8000` |
+| OTA 선택 정보 | `0xe000` |
+| 애플리케이션 | `0x10000` |
+
+실제 설치 담당자는 이 목록과 생성된 파일을 대조하고, 연결한 칩의 종류·리비전·
+USB 고유번호를 확인해야 합니다. 이전 전체 플래시로 복구할 방법도 함께
+준비하세요. 빌드 성공만으로 카메라 영상이 정상 수신된다고 판단하지 않습니다.
+
+## 3. 설치 후 장치 정보와 Wi-Fi 설정
+
+펌웨어 파일은 모든 매장에서 공통으로 사용하고, 장치별 정보는 USB CDC로
+따로 저장합니다. USB CDC는 USB 연결을 가상 직렬 포트로 사용해 설정과
+응답을 주고받는 방식입니다. 등록된 카메라 ID와 `view`를 보존하세요. 작업 중 누군가가
+보드를 “TOP”이라고 불렀더라도, 기존 저장값을 확인하지 않고 역할을 바꾸면
+Pi와 SaaS의 영상 위치 표시가 뒤바뀔 수 있습니다.
+
+설정용 JSON의 항목은 다음 8개이며 기존 형식인 `schema_version: 1`을
+유지합니다. 장치 정보 응답의 버전 2와는 다른 용도입니다.
 
 ```text
-HABITAT_CONFIG {exact existing private schema_version:1 JSON}
+schema_version, site_id, gateway_id, cage_id,
+camera_id, view, wifi_ssid, wifi_password
 ```
 
-The JSON fields remain exactly `schema_version`, `site_id`, `gateway_id`,
-`cage_id`, `camera_id`, `view`, `wifi_ssid`, `wifi_password`. Maximum 4096 bytes.
-Duplicate or unknown keys, invalid IDs and Wi-Fi lengths, and embedded NULs are
-rejected. The private configuration is stored in NVS namespace `habitat-camera`,
-key `config`; credentials are neither returned nor logged. The firmware is the
-same for every store and camera.
+실제 설정은 비공개 파일로 관리합니다. 설치된 펌웨어에 설정을 넣는 도구는
+[`deploy/camera_node.py`](../../../deploy/camera_node.py)의
+`--provision-h264` 기능입니다. USB 장치와 기존 설정 파일을 확인한 뒤
+사용하는 절차이며, 비밀번호를 명령행이나 채팅에 붙여 넣지 않습니다.
 
-Success response: `{"configured":true,"restarting":true}` followed by reboot.
-Failure response: `{"configured":false,"error":"config_invalid_or_write_failed"}`.
-`HABITAT_STATUS` reports firmware/configured/ready/frames/error without secrets.
-Its `imaging` object, also returned by `/health`, reads a fixed set of OV5647
-registers only while capture is healthy. `exposure_raw` combines the low four
-bits of `0x3500` and bytes `0x3501`/`0x3502`; `gain_raw` combines the low two
-bits of `0x350a` and byte `0x350b`. They are raw sensor codes, not measured lux
-or exposure time in microseconds. `0x3503` bits 0/1/2 select manual AEC/AGC/VTS;
-`0x5001` bit 0 enables sensor AWB and `0x5180` bit 3 selects manual AWB gains.
-AE target, gain ceiling and HTS/VTS registers support troubleshooting without
-altering exposure. Reads stop on the first error or between reads after 50 ms;
-individual bus transactions retain the driver timeout. An unavailable ISP AGC
-result does not itself imply disabled sensor AEC: the OV5647 profile uses the
-sensor's own auto exposure. No imaging writes are exposed.
-There is no network configuration endpoint. Preserve the camera's actual saved
-identity even if the USB-connected board is informally called TOP or FRONT.
+설정이 저장되면 `{"configured":true,"restarting":true}`를 응답하고
+재부팅합니다. 이 응답은 저장 성공을 뜻하며, Wi-Fi 연결이나 영상 확인까지
+끝났다는 뜻은 아닙니다. 설정을 받지 못하면
+`{"configured":false,"error":"config_invalid_or_write_failed"}`를 응답합니다.
 
-## Validation and sources
+## 4. Pi에서 확인할 주소
 
-`tests/unit/test_camera_h264_firmware.py` executes the production C++ validation
-header against host cJSON. Target build validation is separate from optical and
-network hardware acceptance; a successful build does not prove a live picture.
+| 주소 | 확인할 내용 |
+|---|---|
+| `http://카메라주소:5000/identity` | 장치 ID, 역할, 영상 규격 |
+| `http://카메라주소:5000/health` | 준비 상태, 프레임·누락·오류 횟수 |
+| `rtsp://카메라주소:8554/stream` | TCP로 받는 H.264 영상 |
 
-- [Official DFR1172 board documentation](https://wiki.dfrobot.com/dfr1172/)
-- [Official Arduino DFR1172 variant](https://github.com/espressif/arduino-esp32/blob/3.3.12/variants/dfrobot_firebeetle2_esp32p4/pins_arduino.h)
-- [Espressif esp_video H.264 pixel-format mapping](https://github.com/espressif/esp-video-components/blob/master/esp_video/src/device/esp_video_h264_device.c)
-- [Pinned official RTSP and SAL source](https://github.com/espressif/esp-adf-libs/tree/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1)
-- [ESP-VISION silicon support boundary](https://docs.espressif.com/projects/esp-vision/en/latest/esp32p4/target-support/index.html)
+`/identity`는 센서 감지, 영상 형식, 압축된 기준 프레임을 확인하고 최근
+프레임이 들어오는 상태에서 HTTP 200을 반환합니다. 준비가 안 됐거나
+영상 수신이 끊긴 상태에서는 HTTP 503을 반환합니다. `/health`에는
+인증정보가 포함되지 않습니다.
+
+Wi-Fi가 다시 연결되거나 IP가 바뀌면 RTSP 서버가 새 주소에서 다시
+시작합니다. Pi는 응답한 장치 ID를 등록 정보와 대조하고 실제 영상을
+검증해야 합니다. 카메라가 알려주는 임의의 전체 URL을 그대로 신뢰하면
+안 됩니다. 카메라 연결은 매장 LAN 내부용이고, 외부 사용자의 접근은 기존
+Gateway·SaaS 인증을 거칩니다.
+
+## 개발자 참고: 영상 형식과 재연결 처리
+
+H.264 설정은 Baseline 프로필, GOP 20입니다. GOP는 기준 프레임 사이의
+간격이며, 여기서는 20프레임마다 새 기준 프레임(IDR)을 만듭니다.
+기준 프레임을 해석할 때 필요한 정보인 SPS/PPS도 함께 보냅니다.
+코드는 이 데이터 종류(NAL)와 프로필을 확인한 뒤 준비 상태를 표시합니다.
+
+전송 대기열에는 압축된 프레임을 최대 2개만 둡니다. Pi가 늦게 읽으면
+대기열을 비우고 다음 IDR을 기다립니다. 앞선 화면이 필요한 P프레임부터
+다시 보내지 않으며, 송신 대기로 카메라 촬영을 멈추지 않습니다.
+영상 연결과 HTTP 상태 조회는 별도입니다. RTSP가 재생(`PLAY`) 전에
+영상 정보를 요청(`DESCRIBE`)할 때에는 별도로 보관한 최근 IDR의
+SPS/PPS를 사용합니다.
+
+`/identity`의 `schema_version`은 **2**입니다. 기존
+`site_id`, `gateway_id`, `cage_id`, `camera_id`, `view`, `device_type`에
+다음 값을 추가합니다.
+
+```json
+{
+  "stream_transport": "rtsp_tcp",
+  "codec": "h264",
+  "stream_port": 8554,
+  "stream_path": "/stream",
+  "width": 800,
+  "height": 800,
+  "fps": 20,
+  "bitrate_bps": 2000000,
+  "gop_frames": 20,
+  "profile": "baseline",
+  "sps_pps_at_idr": true,
+  "color_range": "limited",
+  "color_matrix": "bt601"
+}
+```
+
+## 개발자 참고: 화면이 검게 보였던 문제
+
+카메라의 ISP는 센서 신호를 영상으로 바꾸는 처리 장치입니다. 여기서는
+ISP 출력에 **limited-range BT.601 YUV**를 명시하고 실제 설정 결과도
+확인합니다. 내부 영상 형식은 packed YUV420입니다.
+
+SDK 기본값은 full-range인데 하드웨어 인코더가 색 범위 정보를 SPS에
+넣지 않아, 일반 재생기가 limited-range로 해석하는 불일치가 있었습니다.
+최초 실물 수신에서는 해독한 밝기 값의 98.6%가 코드값 16보다 낮아 검게
+표시됐습니다. ISP에서 범위를 맞춘 것은 이 해석 차이를 고친 조치입니다.
+**현장 조명이 충분한지, 카메라가 IR 빛에 반응하는지까지 검증한 것은 아닙니다.**
+
+현재 인코더 API에는 VUI 색 행렬 설정이 없습니다. Pi는 위 `color_range`와
+`color_matrix`를 검증한 영상에 한해 SPS의 색상 표시 정보를 붙일 수
+있습니다. 영상 내용은 해독하거나 재압축하지 않습니다. 수신기는 영상의
+가로·세로 크기만 보고 색 행렬을 추측하지 말고 BT.601 규격을 유지해야 합니다.
+
+## 개발자 참고: USB 명령과 센서 진단값
+
+USB CDC 통신 속도는 **115200 baud**입니다. 설정 명령은
+`HABITAT_CONFIG ` 뒤에 기존 비공개 JSON을 붙이고 줄바꿈으로 끝냅니다.
+최대 길이는 4096바이트입니다. 중복·알 수 없는 키, 잘못된 ID나 Wi-Fi 길이,
+문자열 중간의 NUL 문자를 거부합니다. 설정은 NVS 저장 영역의
+`habitat-camera` 이름 공간, `config` 키에 보관하며 비밀번호를 응답이나
+로그에 출력하지 않습니다. 네트워크로 설정을 변경하는 API는 없습니다.
+
+`HABITAT_STATUS`는 펌웨어 이름과 설정·준비 상태, 프레임·오류 정보를
+반환합니다. 이 응답과 `/health`의 `imaging` 항목은 촬영이 정상일 때만
+OV5647의 정해진 레지스터를 읽습니다. 값은 진단용이며 센서 설정을 바꾸지 않습니다.
+
+| 진단 항목 | 읽는 값과 의미 |
+|---|---|
+| `exposure_raw` | `0x3500` 하위 4비트와 `0x3501`, `0x3502`를 합친 원시 노출값 |
+| `gain_raw` | `0x350a` 하위 2비트와 `0x350b`를 합친 원시 이득값 |
+| 수동 AEC / AGC / VTS | `0x3503`의 비트 0 / 1 / 2 |
+| 센서 자동 화이트밸런스(AWB) 활성 | `0x5001`의 비트 0 |
+| 수동 화이트밸런스 이득 선택 | `0x5180`의 비트 3 |
+
+원시 노출·이득값은 조도(lux)나 마이크로초 단위 노출 시간이 아닙니다.
+자동 노출 목표값, 이득 상한, HTS/VTS 타이밍 값도 점검에 사용합니다.
+첫 읽기 오류가 나면 중단하며, 각 읽기 사이에 50ms 경과 여부를 검사합니다.
+개별 통신에는 드라이버의 시간 제한이 적용되므로 전체 조회가 반드시
+50ms 이내에 끝난다는 뜻은 아닙니다.
+
+OV5647은 센서 자체의 자동 노출을 사용합니다. ISP의 자동 이득 제어(AGC)
+상태를 얻지 못했다는 이유만으로 센서 자동 노출(AEC)이 꺼졌다고 판단하면
+안 됩니다. 이 인터페이스에는 센서 레지스터를 쓰는 기능이 없습니다.
+
+## 시험과 공식 자료
+
+`tests/unit/test_camera_h264_firmware.py`는 실제 C++ 검증 코드를 호스트의
+cJSON 라이브러리로 실행합니다. 설정·영상 형식 검사와 ESP32 대상 빌드는
+실물 광학·무선 시험과 구분합니다. 시험이나 빌드가 통과해도 실제 영상의
+밝기·선명도·안정성은 별도로 확인해야 합니다.
+
+- [DFR1172 공식 보드 문서](https://wiki.dfrobot.com/dfr1172/)
+- [Arduino의 DFR1172 보드 핀 설정](https://github.com/espressif/arduino-esp32/blob/3.3.12/variants/dfrobot_firebeetle2_esp32p4/pins_arduino.h)
+- [Espressif의 H.264 픽셀 형식 대응 코드](https://github.com/espressif/esp-video-components/blob/master/esp_video/src/device/esp_video_h264_device.c)
+- [사용 버전이 고정된 공식 RTSP·SAL 소스](https://github.com/espressif/esp-adf-libs/tree/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1)
+- [ESP-VISION의 칩 리비전 지원 범위](https://docs.espressif.com/projects/esp-vision/en/latest/esp32p4/target-support/index.html)

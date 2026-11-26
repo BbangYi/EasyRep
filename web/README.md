@@ -1,9 +1,26 @@
 # EasyRep
 
-여러 사육장 목록과 선택한 사육장을 관리하는 React + TypeScript 반응형 UI 프로토타입입니다.
-모든 센서값, 장치 상태, 명령과 기록은 고정된 데모 데이터입니다.
+이 폴더에는 실제 API를 사용하는 웹 화면과 초기 데모 화면이 함께 있습니다. 수정할 대상을 먼저 구분하세요.
 
-## 실행
+- `standalone/`: React + TypeScript 웹 화면입니다. 로그인한 사용자의 사육장·센서 데이터를 조회하고 카메라 영상과 IR 제어 API를 연결합니다.
+- `server/`: 별도로 실행하는 Django 서버입니다. 로그인·권한 확인, Pi 데이터 수신·저장, 카메라·IR 중계를 담당합니다.
+- `app/`: Sites/Vinext 빌드 대상입니다. 아래의 초기 데모 실행 안내는 이 화면에 해당하며, `npm run dev`만으로 Django SaaS가 시작되지는 않습니다.
+
+현재 소스와 운영 사이트에 배포된 버전은 별도로 확인해야 합니다. 소스에 기능이 있다는 것만으로 실제 장치 연결이나 운영 배포가 완료된 것은 아닙니다.
+
+## 먼저 볼 안내
+
+- [웹 소스 검사와 빌드](#검증): 공통 시험과 운영 standalone 빌드를 구분합니다.
+- [카메라 재연결 구현](#운영-카메라-재연결): 현재 카메라 재생·복구 동작과 검증 범위입니다.
+- [브라우저 API 계약](server/docs/web-api.md): 로그인 세션, 센서 조회, 카메라·IR API를 설명합니다.
+
+이 README에는 Django SaaS의 설치부터 운영 실행까지 이어지는 안내가 아직 없습니다. `server/requirements.txt`, `server/manage.py`, `server/config/settings.py`가 서버의 의존성·실행·설정 파일이며, 아래 데모 명령을 운영 서버 설치 절차로 사용하지 않습니다.
+
+## 과거 UI 개발 기록
+
+아래 데모·화면 설계 설명에는 초기 프로토타입 당시의 기능과 제약이 남아 있습니다. 현재 검사 방법은 **검증**, 현재 카메라 구현은 **운영 카메라 재연결** 절을 기준으로 확인하세요.
+
+## 데모 실행 — Sites/Vinext
 
 Node.js 22.13 이상을 사용합니다.
 
@@ -77,7 +94,7 @@ npm run test:source
 npx tsc --noEmit
 ```
 
-`test:source`는 빌드 산출물 없이 `accounts`, `forest-motion`, `habitat-model`, `live-data`, `live-query`, `live-route`, `spatial`의 기존 테스트 7개를 실행합니다. 계정 범위, 진입 연출, 요약·그래프·CSV, 조회 실패·복구, 경로, 실측 출처·센서 배치·보간을 검사하며 테스트 실패는 명령 실패로 전달됩니다. 테스트 파일을 추가하면 이 명시적 목록에도 해당 검사 범위에 맞게 반영합니다.
+`test:source`는 빌드 산출물 없이 `accounts`, `forest-motion`, `habitat-model`, `live-data`, `live-query`, `live-route`, `spatial`, `presentation`, `camera-playback`의 테스트 파일 9개를 실행합니다. 계정 범위, 진입 연출, 요약·그래프·CSV, 조회 실패·복구, 경로, 실측 출처·센서 배치·보간, 발표 자료, 카메라 재생 복구를 검사하며 테스트 실패는 명령 실패로 전달됩니다. 테스트 파일을 추가하면 이 명시적 목록에도 해당 검사 범위에 맞게 반영합니다.
 
 운영 standalone UI를 변경한 경우:
 

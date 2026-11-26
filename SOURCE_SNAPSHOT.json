@@ -19,7 +19,7 @@
       "baseline_commit": null,
       "includes_uncommitted_changes": true,
       "files": 288,
-      "file_manifest_sha256": "884322f926acee8ba2360b7ffd47e870deb5c29991c8c380f331b6c4283dfc2a",
+      "file_manifest_sha256": "eabe9c0152008b2881148f5b3964eec55c907878f4712e4874013929c6fd8e6d",
       "file_manifest_algorithm": "SHA-256 of compact UTF-8 JSON sorted by relative path; object keys sorted; fields bytes,path,sha256",
       "scope": "Runtime code, public firmware source, build tools, tests, examples and selected documentation",
       "redactions": "Operational addresses, personal paths and SSH fingerprints in public documentation use examples",
@@ -40,5 +40,17 @@
       "mlp_complete_inference_bundle": false
     }
   },
-  "updated_at": "2026-11-26"
+  "updated_at": "2026-11-26",
+  "documentation": {
+    "updated_at": "2026-11-26",
+    "language": "ko",
+    "readme_files": 8,
+    "scope": "User and developer onboarding; definitions, navigation, verified capabilities and pending work",
+    "reference_readmes": [
+      "https://github.com/home-assistant/core/blob/dev/README.rst",
+      "https://github.com/esphome/esphome/blob/dev/README.md",
+      "https://github.com/blakeblackshear/frigate/blob/dev/README.md"
+    ],
+    "runtime_code_changed": false
+  }
 }

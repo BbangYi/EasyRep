@@ -1,39 +1,91 @@
-# BB6 cage controller
+# BB6 센서·적외선 제어 보드 안내
 
-One shared classic ESP32 sketch reads SHT31 and two DS18B20 probes. The reviewed
-BB6 IR option uses GPIO4; the camera boards are separate ESP32-P4 devices. Pin,
-identity, Wi-Fi and MQTT differences belong in a private per-node configuration.
-Pump outputs remain disabled. See [IR protocol](../../docs/protocols/ir-control.md)
-and [hardware commissioning](../../docs/operations/hardware-arrival.md).
+BB6의 ESP32는 사육장의 SHT31 온습도 센서 1개와 DS18B20 온도 센서 2개를
+읽어 Pi로 보냅니다. IR 기능을 설정한 보드는 GPIO4를 통해 DFR0457에
+적외선 조명의 켜기·끄기 신호도 보냅니다. TOP·FRONT 카메라는 별도의
+ESP32-P4 보드가 담당하며, 이 폴더의 프로그램을 카메라에 넣으면 안 됩니다.
 
-## Repeatable example compilation
+**펌웨어**는 보드 안에서 실행되는 프로그램입니다. **빌드**는 소스 코드를
+보드가 실행할 파일로 만드는 과정이고, **업로드**는 그 파일을 실제 보드에
+기록하는 과정입니다. 아래 도구는 예제 설정으로 빌드만 합니다.
+현재 연결된 보드의 프로그램이나 IR 상태는 바꾸지 않습니다.
 
-`dependencies.lock.json` records the tested CLI versions, exact core/library
-versions and classic ESP32 board options. Install these dependencies in a separate
-Arduino toolchain beforehand; the helper performs no downloads or USB access:
+## 사육장별로 무엇을 다르게 설정하나요?
+
+모든 사육장은 같은 `cage_node.ino`를 사용합니다. 사육장·장치 ID,
+Wi-Fi·MQTT 접속 정보와 센서 핀은 보드별 비공개 설정인 `config.h`에서
+구분합니다. 저장소의 `config.example.h`에는 실제 비밀번호 대신 예시 값이
+들어 있습니다.
+
+| 신호 | 공개 예제의 BB6 GPIO |
+|---|---:|
+| SHT31 SDA / SCL | 21 / 22 |
+| DS18B20 T2 / T3 | 18 / 19 |
+| 선택 기능인 IR 제어 | 4 |
+
+이 표는 BB6 예제 기준입니다. 다른 보드의 배선을 그대로 적용하지 말고
+해당 장치의 확인된 핀 설정을 사용하세요. 펌프 기능은 비활성 상태를
+유지합니다. 실제 연결과 제어 조건은 [IR 제어 규격](../../docs/protocols/ir-control.md)과
+[실물 설치 기록](../../docs/operations/hardware-arrival.md)을 참고하세요.
+
+## 1. 빌드 도구 준비
+
+아래 명령은 저장소의 `gateway/` 폴더에서 실행합니다. Arduino CLI가
+설치되어 있고, Espressif의 공식 ESP32 보드 목록이 CLI에 등록된 환경을
+전제로 합니다. CLI에서 보드 정보를 찾지 못하면 이 설정부터 확인하세요.
+
+`dependencies.lock.json`은 사용할 도구와 라이브러리 버전을 기록한
+파일입니다. 지원하는 Arduino CLI는 **1.5.1**, **1.5.2-rc.1**입니다.
+기존 센서 설치 기록에서는 1.5.1을 사용했고, 새 예제 빌드 도구는
+1.5.2-rc.1로도 컴파일을 확인했습니다.
+
+필요한 구성요소를 먼저 설치합니다. 이 단계는 인터넷 연결이 필요할 수 있습니다.
 
 ```bash
 arduino-cli core install esp32:esp32@3.3.12
 arduino-cli lib install 'Adafruit SHT31 Library@2.2.2' 'Adafruit BusIO@1.17.4' \
   'OneWire@2.3.8' 'PubSubClient@2.8'
+```
+
+빌드 대상은 일반 ESP32이며, 설정은 `FlashSize=4M`, `FlashMode=dio`,
+`FlashFreq=40`입니다. 버전을 맞춰 같은 조건으로 컴파일하기 위한 설정이며,
+운영체제가 달라도 결과 파일이 바이트 단위로 같다는 보장은 아닙니다.
+이 도구가 설치된 SDK 전체의 다운로드 해시를 검증하는 것도 아닙니다.
+
+## 2. 예제 빌드
+
+다음 중 확인하려는 구성을 선택합니다. 두 명령 모두 보드 연결 없이
+실행할 수 있고, 구성요소가 준비되어 있으면 빌드 중 다운로드하지 않습니다.
+
+```bash
 python3 firmware/cage_node/build.py --profile sensor --output /tmp/bb6-sensor-build
 python3 firmware/cage_node/build.py --profile ir-locked --output /tmp/bb6-ir-build
 ```
 
-Run from `gateway/`. Arduino CLI 1.5.1 was used in the recorded sensor commissioning;
-1.5.2-rc.1 is also supported by this helper. Add the official Espressif board index
-to the Arduino CLI configuration when installing its core on a clean machine.
-These are version pins, not a claim of bit-for-bit identical builds across host
-OSes or cryptographically verified toolchain downloads.
+| 선택값 | 확인하는 내용 | 실제 IR 출력 |
+|---|---|---|
+| `sensor` | 센서용 기본 코드가 컴파일되는지 확인 | 비활성 |
+| `ir-locked` | 센서 코드와 IR 명령 처리 코드를 함께 컴파일 | 잠금 유지 |
 
-The helper copies only public source and `config.example.h` into a temporary
-sketch. It **never reads the adjacent private `config.h`**. `ir-locked` compiles
-the IR protocol with physical outputs still disabled. Generated binaries contain
-placeholder connection settings, are marked `deployable: false`, and must not be
-uploaded to an installed node. A build manifest records output hashes and the
-selected toolchain. Existing output directories are not overwritten.
+`build.py`는 공개 소스와 `config.example.h`만 임시 폴더로 복사합니다.
+**같은 폴더에 실제 `config.h`가 있더라도 읽지 않습니다.** 빌드가 끝나면
+임시 소스는 제거하고, `--output`으로 지정한 폴더에 결과를 남깁니다.
+이 폴더는 소스 밖의 새 경로여야 하며, 기존 폴더를 덮어쓰지 않습니다.
+다시 빌드할 때에는 새 출력 경로를 지정하세요.
 
-Real commissioning remains a separate, explicit operation: preserve the existing
-private configuration and rollback image, verify the board identity and wiring,
-then build in a private staging directory. Keep configuration and those binaries
-outside this repository. The repository contains no upload helper for this step.
+결과의 `build-manifest.json`에는 도구 버전과 파일 해시가 들어 있습니다.
+해시는 나중에 같은 파일인지 대조하는 값입니다. 결과에는
+`deployable: false`, `hardware_verified: false`가 표시됩니다.
+**접속 정보가 예시 값인 시험용 파일이므로 운영 중인 보드에 업로드하지 마세요.**
+컴파일 성공은 실물 센서 측정이나 IR 점등 성공을 뜻하지 않습니다.
+
+## 3. 실제 보드에 적용할 때
+
+실제 적용은 예제 빌드와 별도 작업입니다. 먼저 해당 보드의 기존 설정과
+복구용 펌웨어를 보관하고, 장치 ID·USB 장치·배선이 맞는지 확인합니다.
+그다음 저장소 밖의 비공개 작업 폴더에서 실제 설정으로 빌드해야 합니다.
+
+실제 `config.h`와 그 설정으로 만든 바이너리에는 접속 정보가 들어갈 수
+있으므로 Git에 올리지 않습니다. 이 폴더에는 실제 보드를 자동 업로드하는
+도구가 없습니다. IR 출력을 활성화하는 순서와 점검 항목은
+[IR 제어 규격](../../docs/protocols/ir-control.md)을 따르세요.

@@ -1,0 +1,12 @@
+user habitat-gateway
+topic read habitat/v1/STORE-001/cages/+/nodes/+/telemetry
+topic read habitat/v1/STORE-001/cages/+/nodes/+/ack
+topic read habitat/v1/STORE-001/cages/+/nodes/+/status
+topic write habitat/v1/STORE-001/cages/+/nodes/+/command
+topic write habitat/v1/STORE-001/gateways/PI-001/status
+
+user esp32-001
+topic read habitat/v1/STORE-001/cages/CAGE-001/nodes/ESP32-001/command
+topic write habitat/v1/STORE-001/cages/CAGE-001/nodes/ESP32-001/telemetry
+topic write habitat/v1/STORE-001/cages/CAGE-001/nodes/ESP32-001/ack
+topic write habitat/v1/STORE-001/cages/CAGE-001/nodes/ESP32-001/status

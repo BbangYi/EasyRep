@@ -1,0 +1,26 @@
+[Unit]
+Description=HabitatOS receive-only air temperature display
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+EnvironmentFile=/etc/habitat-gateway/gateway.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/habitat-air-viewer/current/venv/bin/python -m apps.air --config /etc/habitat-gateway/gateway.toml --air-config /etc/habitat-air-viewer/air.json --upload-config /etc/habitat-air-viewer/upload.json
+WorkingDirectory=/var/lib/habitat-air-viewer
+StateDirectory=habitat-air-viewer
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=384M
+CPUQuota=50%
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

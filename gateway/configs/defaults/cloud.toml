@@ -1,0 +1,9 @@
+# Shared SaaS defaults. Store IDs and credentials are supplied during setup.
+[cloud]
+enabled = true
+endpoint = "https://easyrep.kro.kr/v1/edge/sync"
+token_env = "HABITAT_CLOUD_TOKEN"
+interval_s = 5
+timeout_s = 10
+batch_size = 100
+retry_max_s = 60

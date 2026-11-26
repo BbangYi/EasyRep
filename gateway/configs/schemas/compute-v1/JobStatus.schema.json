@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:JobStatus",
+  "$defs": {
+    "Artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "format": "uuid",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "format": {
+          "const": "gaussian_splat_ply",
+          "title": "Format",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "download_path": {
+          "title": "Download Path",
+          "type": "string"
+        },
+        "metric_scale_verified": {
+          "const": false,
+          "title": "Metric Scale Verified",
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "format",
+        "size_bytes",
+        "sha256",
+        "download_path",
+        "metric_scale_verified",
+        "metadata"
+      ],
+      "title": "Artifact",
+      "type": "object"
+    },
+    "JobError": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "JobError",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "site_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "gateway_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Gateway Id",
+      "type": "string"
+    },
+    "cage_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Cage Id",
+      "type": "string"
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "capture_id": {
+      "format": "uuid",
+      "title": "Capture Id",
+      "type": "string"
+    },
+    "kind": {
+      "const": "3dgs",
+      "default": "3dgs",
+      "title": "Kind",
+      "type": "string"
+    },
+    "preset": {
+      "const": "preview",
+      "default": "preview",
+      "title": "Preset",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "interrupted"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "queued",
+        "colmap",
+        "training",
+        "exporting",
+        "complete",
+        "failed",
+        "interrupted"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "geometry_revision": {
+      "minimum": 1,
+      "title": "Geometry Revision",
+      "type": "integer"
+    },
+    "placement_revision": {
+      "minimum": 1,
+      "title": "Placement Revision",
+      "type": "integer"
+    },
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/Artifact"
+      },
+      "maxItems": 32,
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JobError"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "site_id",
+    "gateway_id",
+    "cage_id",
+    "job_id",
+    "capture_id",
+    "status",
+    "stage",
+    "created_at",
+    "updated_at",
+    "geometry_revision",
+    "placement_revision",
+    "artifacts",
+    "error"
+  ],
+  "title": "JobStatus",
+  "type": "object"
+}

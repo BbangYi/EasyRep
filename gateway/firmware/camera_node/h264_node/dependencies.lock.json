@@ -1,0 +1,171 @@
+{
+  "repository": "https://github.com/espressif/esp-adf-libs",
+  "commit": "7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1",
+  "files": [
+    {
+      "path": "esp_media_protocols/LICENSE",
+      "sha": "3655b6f4a4ef1ab317cf8b693b8d636784fda014",
+      "size": 1186
+    },
+    {
+      "path": "esp_media_protocols/include/esp_rtsp.h",
+      "sha": "86d3064deb02c305ef7b53c56d90f8319c0b5079",
+      "size": 5920
+    },
+    {
+      "path": "esp_media_protocols/lib/esp32p4/libesp_media_protocols.a",
+      "sha": "c7fdef5ff0f049f2025e5a333c540badae61a251",
+      "size": 5857158
+    },
+    {
+      "path": "media_lib_sal/LICENSE",
+      "sha": "a57f589437e2f36b42e93be6bf5dc70006727be9",
+      "size": 1163
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_crypt.h",
+      "sha": "0421cb3000a21d4cd96e1e26d8cc7b0f789a6c32",
+      "size": 4542
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_err.h",
+      "sha": "e6943abeb72641c7cf568ba82fa744311050bbce",
+      "size": 1502
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_mem_trace.h",
+      "sha": "6428b94bcaf0d17559a6e8726d5998011191d758",
+      "size": 4685
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_netif.h",
+      "sha": "946ccb350cc3d3c58801f7620ee583faf588b5b2",
+      "size": 804
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_os.h",
+      "sha": "ef4d7270d1e36d000f610f4adbc04d317716b237",
+      "size": 9251
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_socket.h",
+      "sha": "0990fc8f24bc40d83c254f377cb7593785f89e6a",
+      "size": 5701
+    },
+    {
+      "path": "media_lib_sal/include/media_lib_tls.h",
+      "sha": "3b60d3df2a7880ba330fcf45e8de87efd9ae209b",
+      "size": 1731
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_adapter.h",
+      "sha": "30df502e10827c8eb7c55198c30df764404d8799",
+      "size": 1837
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_crypt_reg.h",
+      "sha": "0ccb4516092d4c1d9fa2f88a2a3aa8ad19740e0b",
+      "size": 3267
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_netif_reg.h",
+      "sha": "e922d11b68311efb4fcff9f73397a004fb1033cf",
+      "size": 1687
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_os_reg.h",
+      "sha": "c4feed7ebd087f6776a3641e986154a1cb30b747",
+      "size": 5434
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_socket_reg.h",
+      "sha": "79324856b35cc8b3493a591eee9d96644e5df181",
+      "size": 5564
+    },
+    {
+      "path": "media_lib_sal/include/port/media_lib_tls_reg.h",
+      "sha": "6c3ce948f78123af49e4c1e973f6a2cb5d8b2052",
+      "size": 4048
+    },
+    {
+      "path": "media_lib_sal/media_lib_adapter.c",
+      "sha": "7e2a7eb12ee85befd16a7d223efa723e7029bb9b",
+      "size": 2754
+    },
+    {
+      "path": "media_lib_sal/media_lib_common.c",
+      "sha": "b0bd3751512d060111a9f0ef914a58851a15facb",
+      "size": 489
+    },
+    {
+      "path": "media_lib_sal/media_lib_common.h",
+      "sha": "7cd111de9e30ad1b0af79511cf47aafb0d735619",
+      "size": 1140
+    },
+    {
+      "path": "media_lib_sal/media_lib_crypt.c",
+      "sha": "627669ad8ec85d36394e4ff911c735da4a0329c4",
+      "size": 3215
+    },
+    {
+      "path": "media_lib_sal/media_lib_netif.c",
+      "sha": "32b850ad641b079fcfc4006177b66641feb5d950",
+      "size": 921
+    },
+    {
+      "path": "media_lib_sal/media_lib_os.c",
+      "sha": "be0b8b463f2987c34466e174a7c6b36675f7293f",
+      "size": 7794
+    },
+    {
+      "path": "media_lib_sal/media_lib_socket.c",
+      "sha": "b5f7d8d5b5006dc7832c8b5fb0812b1e86a3a0ad",
+      "size": 6535
+    },
+    {
+      "path": "media_lib_sal/media_lib_tls.c",
+      "sha": "5cc8eb849b82b5faa2b3fd7a3bc46d9e89ed2844",
+      "size": 1971
+    },
+    {
+      "path": "media_lib_sal/mem_trace/media_lib_mem_his.c",
+      "sha": "2c53df102d0f4d7de225af2e7fc6f62490a617ea",
+      "size": 7232
+    },
+    {
+      "path": "media_lib_sal/mem_trace/media_lib_mem_his.h",
+      "sha": "c548029ab70a6499ef4cbb1b643a4037c6fafac7",
+      "size": 1212
+    },
+    {
+      "path": "media_lib_sal/mem_trace/media_lib_mem_trace.c",
+      "sha": "eb9dc402db50cc32cd077c217800f6bed78f2403",
+      "size": 16357
+    },
+    {
+      "path": "media_lib_sal/port/media_lib_crypt_default.c",
+      "sha": "0ccc579bf840326cefbd6b626abf11a3c2982c4b",
+      "size": 8252
+    },
+    {
+      "path": "media_lib_sal/port/media_lib_netif_default.c",
+      "sha": "40ed9fcd6a9d890e8b99900011de40015a5cef61",
+      "size": 2321
+    },
+    {
+      "path": "media_lib_sal/port/media_lib_os_freertos.c",
+      "sha": "f0a9d7cb05d4472da43fdb1f4a93cb9ae0760153",
+      "size": 14676
+    },
+    {
+      "path": "media_lib_sal/port/media_lib_socket_default.c",
+      "sha": "f9670fb4ef7783dac1e5dbcd68aefc6cf1203d97",
+      "size": 2579
+    },
+    {
+      "path": "media_lib_sal/port/media_lib_tls_default.c",
+      "sha": "4b2c1a5327a128fdcf3511413434b3f974dbd4f3",
+      "size": 7114
+    }
+  ]
+}

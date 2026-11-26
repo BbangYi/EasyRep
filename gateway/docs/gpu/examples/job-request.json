@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "cage_id": "CAGE-001",
+  "job_id": "de9c18e8-fafd-4450-9c5d-dfc86f726294",
+  "capture_id": "6d9b312f-7a63-4c6e-8542-9c341ef75a30",
+  "kind": "3dgs",
+  "preset": "preview"
+}

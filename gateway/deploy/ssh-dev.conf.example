@@ -1,0 +1,20 @@
+# Separate OpenSSH listener for external development access.
+# Replace PI_USERNAME before installing as /etc/habitat-gateway/ssh-dev.conf.
+Port 22222
+ListenAddress 0.0.0.0
+ListenAddress ::
+HostKey /etc/ssh/ssh_host_ed25519_key
+UsePAM yes
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+AuthenticationMethods publickey
+PermitRootLogin no
+AllowUsers PI_USERNAME
+AuthorizedKeysFile .ssh/authorized_keys
+AllowTcpForwarding yes
+GatewayPorts no
+X11Forwarding no
+PermitUserEnvironment no
+PrintMotd no
+Subsystem sftp internal-sftp

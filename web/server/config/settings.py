@@ -105,3 +105,16 @@ AXES_ENABLE_RETRY_AFTER_HEADER = True
 CSRF_FAILURE_VIEW = "habitat.views.csrf_failure"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 8 * 1024 * 1024
+
+# HLS diagnostics contain identifiers, timings and status codes only. Keep the
+# rest of Django/Gunicorn logging intact; never enable HTTP header/body tracing.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"camera_console": {"class": "logging.StreamHandler", "level": "INFO"}},
+    "loggers": {
+        "habitat.camera_ir": {
+            "handlers": ["camera_console"], "level": "INFO", "propagate": False,
+        },
+    },
+}

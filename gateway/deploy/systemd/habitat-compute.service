@@ -1,0 +1,35 @@
+[Unit]
+Description=HabitatOS optional GPU upload and result worker
+After=network-online.target
+Wants=network-online.target
+# No dependency on the local control service; a GPU failure is isolated.
+ConditionPathExists=/etc/habitat-gateway/compute.toml
+
+[Service]
+Type=simple
+User=habitat-compute
+Group=habitat-compute
+StateDirectory=habitat-compute
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/habitat-compute
+EnvironmentFile=/etc/habitat-gateway/compute.env
+EnvironmentFile=/opt/habitat-gateway/current/release.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/habitat-gateway/current/venv/bin/python -m apps.worker --config /etc/habitat-gateway/compute.toml --gateway-config /etc/habitat-gateway/gateway.toml work
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=20
+UMask=0077
+Nice=10
+CPUQuota=50%
+IOWeight=10
+MemoryHigh=256M
+MemoryMax=512M
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

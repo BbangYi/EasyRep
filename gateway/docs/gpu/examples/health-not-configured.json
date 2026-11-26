@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "service": "habitat-gpu",
+  "api_version": "1.0.0",
+  "status": "degraded",
+  "backend": "not_configured",
+  "gpu": {
+    "name": null,
+    "cuda_available": false,
+    "vram_total_bytes": null,
+    "reconstruction_ready": false
+  },
+  "limits": {
+    "max_files_per_capture": 500,
+    "max_file_bytes": 20971520,
+    "max_capture_bytes": 2147483648,
+    "max_concurrent_jobs": 1
+  }
+}

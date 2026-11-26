@@ -54,7 +54,23 @@ Base URL: `https://habitatos.kro.kr`. 같은 출처의 Django 세션 쿠키로 �
 
 ## 쓰기 작업
 
-계정·매장·Pi 수신 설정은 서버 렌더링 관리 폼과 CSRF 검증을 사용한다. 장치 제어용 POST API는 제공하지 않는다. 실제 장치를 조작하는 UI는 비활성화 상태다.
+계정·매장·Pi 수신 설정은 서버 렌더링 관리 폼과 CSRF 검증을 사용한다. 일반 센서 화면에는 장치 제어용 POST API가 없다. 별도로 연결한 카메라의 IR은 아래 전용 API와 역할 검증을 사용한다.
+
+## 카메라 HLS 중계와 IR
+
+`GET /api/enclosures/{id}/camera/`는 현재 Pi 카메라 상태와 같은 출처의 재생 목록 주소를 반환한다. 영상 경로는 `GET /api/enclosures/{id}/camera/hls/{camera_id}/index.m3u8`, `GET /api/enclosures/{id}/camera/hls/{camera_id}/{session_uuid}/{sequence}.ts`다. 모든 요청에서 로그인, 사용자의 사육장 범위, 활성 Gateway와 현재 site/gateway/cage/camera 연결을 확인한다. Pi 키는 서버에서만 사용한다. 사육장에 아직 연결하지 않은 `/api/camera/`와 그 하위 경로는 기존대로 owner 전용이다.
+
+HLS 요청에 한해 Pi의 장치 목록에서 검증한 카메라 ID 집합을 프로세스당 최대 32건, 3초 동안 재사용한다. 같은 구성의 동시 조회는 한 번만 요청하고 대기한다. 키는 전체 설정의 해시를 포함하므로 인증 키나 장치 매핑을 변경하면 이전 항목을 재사용하지 않는다. 별도 상태 조회에서 장치 식별 불일치나 조회 실패가 관측되면 해당 항목을 무효화하며, 진행 중인 조회도 이를 되살리지 못한다. 만료 후 갱신 실패 시 이전 값을 제공하지 않는다. 캐시는 권한을 부여하지 않으며 영상·프레임 시각·`fresh` 상태를 보관하지 않는다. 카메라 목록/상태 조회와 IR 작업은 이 캐시를 사용하지 않는다. Pi 측 식별 변경의 미관측 기간은 최대 TTL만큼 남을 수 있으므로 설정 변경과 Pi의 미디어 권한 검증도 유지해야 한다.
+
+HLS view의 응답에는 `Cache-Control: no-store`, `X-Accel-Buffering: no`, `X-Request-ID`가 붙는다. Pi 미디어의 404/503은 그대로 전달하고, 404를 빈 영상이나 200으로 바꾸지 않는다. 재생 목록은 최대 128,000바이트이며 상대적인 UUID/순번 `.ts` 주소만 허용한다. 영상 조각은 Pi 계약에 맞춰 최대 2 MiB까지 읽어 응답한다. 이는 크기를 제한한 전체 본문 중계이며 점진적 스트리밍이 아니다. `X-Accel-Buffering`의 실제 반영 여부는 운영 역방향 프록시 설정도 확인해야 한다.
+
+로그인·목록 조회·미디어 요청·동시 조회 대기는 HLS 요청 시작 후 8초의 남은 예산을 공유한다. 각 네트워크 호출에 남은 시간을 socket timeout으로 전달하며 401 재로그인도 예산을 초기화하지 않는다. `urllib` timeout은 소켓의 대기 제한이므로 느린 연속 수신 전체를 8초 안에 강제로 종료하는 총시간 제한은 아니다. 실제 프록시/WSGI timeout과 관측된 요청 시간을 함께 확인해야 한다. IR의 기존 timeout·재시도 동작은 변경하지 않는다.
+
+`habitat.camera_ir`는 INFO 수준으로 콘솔에 `camera_hls` JSON 한 줄을 남긴다. 필드는 `request_id`, `kind`, 검증된 `camera_id`, UUID인 `session_id`, 0 이상 2⁶³ 미만인 `sequence`, `response_status`, `duration_ms`, `upstream_ms`, `inventory_cache`와 각 upstream의 `kind/status/duration_ms/error`다. URL·쿼리·본문·쿠키·인증 키·원본 예외 메시지는 기록하지 않는다. 요청 ID는 첫 글자가 영숫자이고 영숫자/`_.:-`만 쓰는 최대 64자 값을 허용하며, 나머지는 새 UUID로 대체한다. 같은 ID를 Pi 요청 헤더에 전달하지만 현재 Pi access log는 이 헤더를 기록하지 않으므로 양쪽 로그의 요청 ID 대조까지 검증된 것은 아니다. 인증 미들웨어·CSRF·메서드 검사에서 view 전에 거절된 요청은 이 HLS 전용 로그/헤더 대상이 아니다. IR 작업에는 이 로그를 추가하지 않는다.
+
+`GET .../camera/ir/`는 관측 상태를 조회한다. `POST .../camera/ir/command/`는 기존대로 owner/manager 역할과 Django CSRF 검증을 요구한다. 허용 본문은 `{"action":"on"}` 또는 `{"action":"off"}`이고 ON은 서버에서 300초로 제한한다. Pi 제어 권한과 Pi CSRF도 확인한다. 이번 HLS 변경에는 IR 명령이나 자동 재시도를 추가하지 않았다.
+
+자동 시험은 동일한 구성의 미디어 두 요청에서 upstream 목록 요청이 2회에서 1회로 줄고, 매번 미디어 요청은 유지되는 것을 확인한다. 이는 네트워크 왕복 횟수 검증이며 운영 SaaS 지연 개선 수치는 배포 후 같은 시간대의 요청 ID·상태·소요 시간으로 측정해야 한다.
 
 ## 측정 누적 이력
 

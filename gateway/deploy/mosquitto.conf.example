@@ -1,0 +1,9 @@
+# Template only. Install credentials/ACL files before starting the broker.
+# This listener accepts only processes on the Pi. A remote ESP32 needs an
+# authenticated LAN/TLS listener and firewall rules for the intended LAN.
+listener 1883 127.0.0.1
+allow_anonymous false
+password_file /etc/mosquitto/habitat-passwords
+acl_file /etc/mosquitto/habitat-acl
+persistence true
+persistence_location /var/lib/mosquitto/

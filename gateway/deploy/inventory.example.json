@@ -1,0 +1,14 @@
+[
+  {
+    "host": "operator@store-001-pi.local",
+    "site_id": "STORE-001",
+    "gateway_id": "PI-001",
+    "config": "../config/stores/STORE-001.toml"
+  },
+  {
+    "host": "operator@store-002-pi.local",
+    "site_id": "STORE-002",
+    "gateway_id": "PI-002",
+    "config": "../config/stores/STORE-002.toml"
+  }
+]

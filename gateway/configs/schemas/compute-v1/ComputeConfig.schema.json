@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:ComputeConfig",
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {
+      "default": false,
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "base_url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Base Url"
+    },
+    "token_env": {
+      "default": "HABITAT_GPU_TOKEN",
+      "title": "Token Env",
+      "type": "string"
+    },
+    "storage_dir": {
+      "default": "var/data/compute",
+      "title": "Storage Dir",
+      "type": "string"
+    },
+    "timeout_s": {
+      "default": 15,
+      "maximum": 60,
+      "minimum": 1,
+      "title": "Timeout S",
+      "type": "number"
+    },
+    "transfer_timeout_s": {
+      "default": 300,
+      "maximum": 3600,
+      "minimum": 1,
+      "title": "Transfer Timeout S",
+      "type": "number"
+    },
+    "poll_interval_s": {
+      "default": 5,
+      "maximum": 300,
+      "minimum": 0.1,
+      "title": "Poll Interval S",
+      "type": "number"
+    },
+    "retry_max_s": {
+      "default": 300,
+      "maximum": 86400,
+      "minimum": 1,
+      "title": "Retry Max S",
+      "type": "number"
+    },
+    "max_artifact_bytes": {
+      "default": 1073741824,
+      "exclusiveMinimum": 0,
+      "maximum": 8589934592,
+      "title": "Max Artifact Bytes",
+      "type": "integer"
+    },
+    "max_storage_bytes": {
+      "default": 8589934592,
+      "exclusiveMinimum": 0,
+      "title": "Max Storage Bytes",
+      "type": "integer"
+    }
+  },
+  "title": "ComputeConfig",
+  "type": "object"
+}

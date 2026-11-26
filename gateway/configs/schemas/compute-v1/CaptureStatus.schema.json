@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:CaptureStatus",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "site_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "gateway_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Gateway Id",
+      "type": "string"
+    },
+    "cage_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Cage Id",
+      "type": "string"
+    },
+    "capture_id": {
+      "format": "uuid",
+      "title": "Capture Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "uploading",
+        "ready"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "verified_file_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 500,
+      "title": "Verified File Ids",
+      "type": "array"
+    },
+    "missing_file_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 500,
+      "title": "Missing File Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "site_id",
+    "gateway_id",
+    "cage_id",
+    "capture_id",
+    "status",
+    "verified_file_ids",
+    "missing_file_ids"
+  ],
+  "title": "CaptureStatus",
+  "type": "object"
+}

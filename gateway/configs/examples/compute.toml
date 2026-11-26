@@ -1,0 +1,12 @@
+# GPU client config only. Store/cage identity comes from --gateway-config.
+enabled = false
+# Set the HTTPS origin returned by desktop-result.json, then enable explicitly.
+# base_url = "https://GPU-NAME.TAILNET.ts.net"
+token_env = "HABITAT_GPU_TOKEN"
+storage_dir = "var/data/compute"
+timeout_s = 15
+transfer_timeout_s = 300
+poll_interval_s = 5
+retry_max_s = 300
+max_artifact_bytes = 1073741824
+max_storage_bytes = 8589934592

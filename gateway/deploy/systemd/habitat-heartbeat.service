@@ -1,0 +1,20 @@
+[Unit]
+Description=HabitatOS Pi heartbeat (no sensors or device control)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/habitatos/gateway
+EnvironmentFile=%h/.config/habitatos/gateway.env
+EnvironmentFile=%h/.local/share/habitatos/gateway/current/release.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=%h/.local/share/habitatos/gateway/current/venv/bin/python -m habitat_gateway --config %h/.config/habitatos/gateway.toml --heartbeat-only
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+UMask=0077
+NoNewPrivileges=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=default.target

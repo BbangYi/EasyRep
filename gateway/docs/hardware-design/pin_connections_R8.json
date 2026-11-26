@@ -1,0 +1,653 @@
+{
+  "schema_version": "R8-pin-connections-1",
+  "scope": "A prototype sensor wiring; document equivalence verified, hardware not tested",
+  "source": {
+    "canonical": "재생성자료/work/r6/canonical_wiring.json",
+    "sha256": "bdb084454447da4aeb7cd5cce9ca470ffb43b3cc946df35b5475cf5492e60ae8",
+    "assembly_manual": "HabitatOS_A_레고식_연결조립_안내서.pdf R8 64 pages",
+    "wiring_manual": "HabitatOS_A_단자별_배선도.pdf R8 9 pages"
+  },
+  "counts": {
+    "external_wires": 16,
+    "buses": 6,
+    "resistors": 2,
+    "unique_insertion_holes": 20
+  },
+  "document_status": "검증됨",
+  "hardware_status": "미검증",
+  "physical_tests": 0,
+  "orientation": {
+    "esp_front": "module face; antenna top; Micro-USB bottom; J2 left, J3 right",
+    "esp_back": "horizontal mirror only; antenna top and Micro-USB bottom remain; J2 right, J3 left",
+    "sht_front": "sensor face; header bottom; VCC-GND-SCL-SDA-INT-RST from left",
+    "perfboard_front": "designer marked A1 at upper left; A..K left to right, 1..12 top to bottom",
+    "perfboard_back": "horizontal mirror; A at right, K at left, row 1 still at top",
+    "pin_mating_status": "received long-pin/male header configuration not verified"
+  },
+  "board_A1": {
+    "index_base": 0,
+    "index": [
+      7,
+      9
+    ],
+    "ordinal_from_left_top": [
+      8,
+      10
+    ],
+    "status": "R8 conditional design choice, not received hardware measurement",
+    "condition": "Verify 26x31 isolated-hole grid, 2.54mm pitch, 70x90 orientation; exclude common strips; stop on mismatch; measure edge-to-A1 offsets"
+  },
+  "wires": [
+    {
+      "id": "E1",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "3V3",
+      "connector": "J2",
+      "connector_position": 1,
+      "jx_position": "J2.1",
+      "pad": "B2",
+      "net": "3V3",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "left",
+      "back_side": "right",
+      "position_from_antenna_top": 1,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "E2",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "GND",
+      "connector": "J2",
+      "connector_position": 14,
+      "jx_position": "J2.14",
+      "pad": "B4",
+      "net": "GND",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "left",
+      "back_side": "right",
+      "position_from_antenna_top": 14,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "E3",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "IO13",
+      "connector": "J2",
+      "connector_position": 15,
+      "jx_position": "J2.15",
+      "pad": "B6",
+      "net": "DQ13",
+      "gpio": 13,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "left",
+      "back_side": "right",
+      "position_from_antenna_top": 15,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "E4",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "IO14",
+      "connector": "J2",
+      "connector_position": 12,
+      "jx_position": "J2.12",
+      "pad": "B8",
+      "net": "DQ14",
+      "gpio": 14,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "left",
+      "back_side": "right",
+      "position_from_antenna_top": 12,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "E5",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "IO21",
+      "connector": "J3",
+      "connector_position": 6,
+      "jx_position": "J3.6",
+      "pad": "B10",
+      "net": "SDA",
+      "gpio": 21,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "right",
+      "back_side": "left",
+      "position_from_antenna_top": 6,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "E6",
+      "device_id": "ESP32-A",
+      "product": "ESP32-DEVKITC-32E / DevKitC V4",
+      "pin_name": "IO22",
+      "connector": "J3",
+      "connector_position": 3,
+      "jx_position": "J3.3",
+      "pad": "B12",
+      "net": "SCL",
+      "gpio": 22,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ESP-UG"
+      ],
+      "front_side": "right",
+      "back_side": "left",
+      "position_from_antenna_top": 3,
+      "socket_mating_face": "back only if received male long pins emerge opposite module face",
+      "mating_or_insertion_face": "ESP back: antenna top, USB bottom; J2 right/J3 left",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if actual long male pins emerge on back; confirm fit and continuity",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "H1",
+      "device_id": "SHT31-A",
+      "product": "DFRobot SEN0331",
+      "pin_name": "VCC",
+      "connector": "P1",
+      "connector_position": 1,
+      "jx_position": "P1.1",
+      "pad": "D2",
+      "net": "3V3",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "DF-PIN",
+        "DF-SCH"
+      ],
+      "front_position_from_left": 1,
+      "socket_mating_face": "front, for the long-pin-front assembly specified in guide p17",
+      "mating_or_insertion_face": "SHT front: sensor face; pin row bottom",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if long pins on front as p17; if presoldered on reverse side, stop and remap",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "H2",
+      "device_id": "SHT31-A",
+      "product": "DFRobot SEN0331",
+      "pin_name": "GND",
+      "connector": "P1",
+      "connector_position": 2,
+      "jx_position": "P1.2",
+      "pad": "D4",
+      "net": "GND",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "DF-PIN",
+        "DF-SCH"
+      ],
+      "front_position_from_left": 2,
+      "socket_mating_face": "front, for the long-pin-front assembly specified in guide p17",
+      "mating_or_insertion_face": "SHT front: sensor face; pin row bottom",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if long pins on front as p17; if presoldered on reverse side, stop and remap",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "H3",
+      "device_id": "SHT31-A",
+      "product": "DFRobot SEN0331",
+      "pin_name": "SCL",
+      "connector": "P1",
+      "connector_position": 3,
+      "jx_position": "P1.3",
+      "pad": "K12",
+      "net": "SCL",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "DF-PIN",
+        "DF-SCH"
+      ],
+      "front_position_from_left": 3,
+      "socket_mating_face": "front, for the long-pin-front assembly specified in guide p17",
+      "mating_or_insertion_face": "SHT front: sensor face; pin row bottom",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if long pins on front as p17; if presoldered on reverse side, stop and remap",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "H4",
+      "device_id": "SHT31-A",
+      "product": "DFRobot SEN0331",
+      "pin_name": "SDA",
+      "connector": "P1",
+      "connector_position": 4,
+      "jx_position": "P1.4",
+      "pad": "K10",
+      "net": "SDA",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "DF-PIN",
+        "DF-SCH"
+      ],
+      "front_position_from_left": 4,
+      "socket_mating_face": "front, for the long-pin-front assembly specified in guide p17",
+      "mating_or_insertion_face": "SHT front: sensor face; pin row bottom",
+      "actual_color_rule": "Delivered colour unspecified; use ID and pin name",
+      "condition": "Only if long pins on front as p17; if presoldered on reverse side, stop and remap",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T1+",
+      "device_id": "DS-A1",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "VDD",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "G2",
+      "net": "3V3",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "VDD",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire/4-wire: red",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T1-",
+      "device_id": "DS-A1",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "GND",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "G4",
+      "net": "GND",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "GND",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire: blue or black; 4-wire: black",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T1D",
+      "device_id": "DS-A1",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "DQ",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "D6",
+      "net": "DQ13",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "DQ",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire: yellow or white; 4-wire: white",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T2+",
+      "device_id": "DS-A2",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "VDD",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "K2",
+      "net": "3V3",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "VDD",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire/4-wire: red",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T2-",
+      "device_id": "DS-A2",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "GND",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "K4",
+      "net": "GND",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "GND",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire: blue or black; 4-wire: black",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    },
+    {
+      "id": "T2D",
+      "device_id": "DS-A2",
+      "product": "Adafruit 381 / DS18B20 probe",
+      "pin_name": "DQ",
+      "connector": null,
+      "connector_position": null,
+      "jx_position": null,
+      "pad": "D8",
+      "net": "DQ14",
+      "gpio": null,
+      "pad_assignment_provenance": "HabitatOS reviewed design; not a factory PCB coordinate",
+      "manufacturer_evidence": [
+        "ADA-381",
+        "ADI-DS"
+      ],
+      "lead_role": "DQ",
+      "package_pin_number": null,
+      "package_pin_number_reason": "sealed wired product; use vendor lead identification, not bare TO-92 orientation",
+      "mating_or_insertion_face": "Captive probe leads: no package pin numbering",
+      "actual_color_rule": "3-wire: yellow or white; 4-wire: white",
+      "condition": "Use confirmed 381 lead identity; other colours stop; bare shield separately insulated",
+      "document_status": "검증됨",
+      "hardware_status": "미검증"
+    }
+  ],
+  "buses": [
+    {
+      "net": "3V3",
+      "start": "B2",
+      "end": "K2",
+      "row": 2,
+      "pads": [
+        "B2",
+        "C2",
+        "D2",
+        "E2",
+        "F2",
+        "G2",
+        "H2",
+        "I2",
+        "J2",
+        "K2"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    },
+    {
+      "net": "GND",
+      "start": "B4",
+      "end": "K4",
+      "row": 4,
+      "pads": [
+        "B4",
+        "C4",
+        "D4",
+        "E4",
+        "F4",
+        "G4",
+        "H4",
+        "I4",
+        "J4",
+        "K4"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    },
+    {
+      "net": "DQ13",
+      "start": "B6",
+      "end": "E6",
+      "row": 6,
+      "pads": [
+        "B6",
+        "C6",
+        "D6",
+        "E6"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    },
+    {
+      "net": "DQ14",
+      "start": "B8",
+      "end": "K8",
+      "row": 8,
+      "pads": [
+        "B8",
+        "C8",
+        "D8",
+        "E8",
+        "F8",
+        "G8",
+        "H8",
+        "I8",
+        "J8",
+        "K8"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    },
+    {
+      "net": "SDA",
+      "start": "B10",
+      "end": "K10",
+      "row": 10,
+      "pads": [
+        "B10",
+        "C10",
+        "D10",
+        "E10",
+        "F10",
+        "G10",
+        "H10",
+        "I10",
+        "J10",
+        "K10"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    },
+    {
+      "net": "SCL",
+      "start": "B12",
+      "end": "K12",
+      "row": 12,
+      "pads": [
+        "B12",
+        "C12",
+        "D12",
+        "E12",
+        "F12",
+        "G12",
+        "H12",
+        "I12",
+        "J12",
+        "K12"
+      ],
+      "solder_face": "back",
+      "hole_centres_remain_open": true
+    }
+  ],
+  "resistors": [
+    {
+      "id": "R1",
+      "ohms_nominal": 4700,
+      "pads": [
+        "C2",
+        "C6"
+      ],
+      "nets": [
+        "3V3",
+        "DQ13"
+      ],
+      "polarity": "none",
+      "tolerance": "not confirmed from received part"
+    },
+    {
+      "id": "R2",
+      "ohms_nominal": 4700,
+      "pads": [
+        "H2",
+        "H8"
+      ],
+      "nets": [
+        "3V3",
+        "DQ14"
+      ],
+      "polarity": "none",
+      "tolerance": "not confirmed from received part"
+    }
+  ],
+  "insertion_holes": {
+    "B2": "E1",
+    "B4": "E2",
+    "B6": "E3",
+    "B8": "E4",
+    "B10": "E5",
+    "B12": "E6",
+    "D2": "H1",
+    "D4": "H2",
+    "K12": "H3",
+    "K10": "H4",
+    "G2": "T1+",
+    "G4": "T1-",
+    "D6": "T1D",
+    "K2": "T2+",
+    "K4": "T2-",
+    "D8": "T2D",
+    "C2": "R1.lead1",
+    "C6": "R1.lead2",
+    "H2": "R2.lead1",
+    "H8": "R2.lead2"
+  },
+  "actual_probe_lead_identification": {
+    "three_wire": {
+      "VDD": [
+        "red"
+      ],
+      "GND": [
+        "blue",
+        "black"
+      ],
+      "DQ": [
+        "yellow",
+        "white"
+      ]
+    },
+    "four_wire": {
+      "VDD": [
+        "red"
+      ],
+      "GND": [
+        "black"
+      ],
+      "DQ": [
+        "white"
+      ],
+      "shield": [
+        "bare copper"
+      ]
+    },
+    "shield_design_choice": "individually insulate free end; not an EMC qualification",
+    "different_colour_system": "stop and resolve product-specific lead identity; do not infer"
+  },
+  "rules": [
+    "Diagram colours are not delivered jacket colours. Identify by wire ID, pin name and pad.",
+    "All power removed before connection or processing.",
+    "SHT INT and RST have no external wires.",
+    "Each 4-wire probe bare shield is separately insulated; not an extra insertion hole.",
+    "Do not join DQ13 and DQ14.",
+    "ESP32 uses one Micro-USB power path; no added Pi-ESP GPIO or common-ground wire.",
+    "Measured wire-exit-to-cut-end usable length must be compared with the same reference path through the real 3D route and required solder tail. Do not subtract connector body, stripped insulation, 73.40mm or B again.",
+    "No pump, valve or fan drive circuit is included."
+  ],
+  "csv_record_counts": {
+    "external_wire": 16,
+    "bus": 6,
+    "resistor": 2,
+    "total": 24
+  }
+}

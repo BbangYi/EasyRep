@@ -1,9 +1,26 @@
 # EasyRep
 
-여러 사육장 목록과 선택한 사육장을 관리하는 React + TypeScript 반응형 UI 프로토타입입니다.
-모든 센서값, 장치 상태, 명령과 기록은 고정된 데모 데이터입니다.
+이 폴더에는 실제 API를 사용하는 웹 화면과 초기 데모 화면이 함께 있습니다. 수정할 대상을 먼저 구분하세요.
 
-## 실행
+- `standalone/`: React + TypeScript 웹 화면입니다. 로그인한 사용자의 사육장·센서 데이터를 조회하고 카메라 영상과 IR 제어 API를 연결합니다.
+- `server/`: 별도로 실행하는 Django 서버입니다. 로그인·권한 확인, Pi 데이터 수신·저장, 카메라·IR 중계를 담당합니다.
+- `app/`: Sites/Vinext 빌드 대상입니다. 아래의 초기 데모 실행 안내는 이 화면에 해당하며, `npm run dev`만으로 Django SaaS가 시작되지는 않습니다.
+
+현재 소스와 운영 사이트에 배포된 버전은 별도로 확인해야 합니다. 소스에 기능이 있다는 것만으로 실제 장치 연결이나 운영 배포가 완료된 것은 아닙니다.
+
+## 먼저 볼 안내
+
+- [웹 소스 검사와 빌드](#검증): 공통 시험과 운영 standalone 빌드를 구분합니다.
+- [카메라 재연결 구현](#운영-카메라-재연결): 현재 카메라 재생·복구 동작과 검증 범위입니다.
+- [브라우저 API 계약](server/docs/web-api.md): 로그인 세션, 센서 조회, 카메라·IR API를 설명합니다.
+
+이 README에는 Django SaaS의 설치부터 운영 실행까지 이어지는 안내가 아직 없습니다. `server/requirements.txt`, `server/manage.py`, `server/config/settings.py`가 서버의 의존성·실행·설정 파일이며, 아래 데모 명령을 운영 서버 설치 절차로 사용하지 않습니다.
+
+## 과거 UI 개발 기록
+
+아래 데모·화면 설계 설명에는 초기 프로토타입 당시의 기능과 제약이 남아 있습니다. 현재 검사 방법은 **검증**, 현재 카메라 구현은 **운영 카메라 재연결** 절을 기준으로 확인하세요.
+
+## 데모 실행 — Sites/Vinext
 
 Node.js 22.13 이상을 사용합니다.
 
@@ -77,7 +94,7 @@ npm run test:source
 npx tsc --noEmit
 ```
 
-`test:source`는 빌드 산출물 없이 `accounts`, `forest-motion`, `habitat-model`, `live-data`, `live-query`, `live-route`, `spatial`의 기존 테스트 7개를 실행합니다. 계정 범위, 진입 연출, 요약·그래프·CSV, 조회 실패·복구, 경로, 실측 출처·센서 배치·보간을 검사하며 테스트 실패는 명령 실패로 전달됩니다. 테스트 파일을 추가하면 이 명시적 목록에도 해당 검사 범위에 맞게 반영합니다.
+`test:source`는 빌드 산출물 없이 `accounts`, `forest-motion`, `habitat-model`, `live-data`, `live-query`, `live-route`, `spatial`, `presentation`, `camera-playback`의 테스트 파일 9개를 실행합니다. 계정 범위, 진입 연출, 요약·그래프·CSV, 조회 실패·복구, 경로, 실측 출처·센서 배치·보간, 발표 자료, 카메라 재생 복구를 검사하며 테스트 실패는 명령 실패로 전달됩니다. 테스트 파일을 추가하면 이 명시적 목록에도 해당 검사 범위에 맞게 반영합니다.
 
 운영 standalone UI를 변경한 경우:
 
@@ -277,3 +294,37 @@ in `server/edge/contracts.py` and the fixtures under `server/edge/fixtures/`.
 Check authenticated ingestion at `/v1/edge/sync`, database persistence, and UI visibility
 with a fresh real sensor sample. Gateway heartbeat alone does not prove sensor freshness.
 Use external device configuration and existing credentials; never commit production values.
+
+## 운영 카메라 재연결
+
+`standalone/enclosure-viewer.tsx`는 API의 `view=top`을 천장, `view=front`를 전면으로 표시합니다. 장치 목록의 `fresh` 변경은 재생기를 다시 만들거나 사용자의 일시 정지를 해제하지 않습니다. 일시적인 목록 조회 실패로 재생기가 제거되어도 같은 패널에서 카메라별 정지 의도를 보존합니다.
+
+`standalone/camera-playback.ts`는 카메라마다 하나의 확인 요청과 복구 타이머를 관리합니다. 404·503·시간 초과는 최신 재생목록으로 다시 연결하며, 1·2·4·8초 재시도 뒤에는 30초 간격으로 확인합니다. 초기 재생목록 성공만으로 재시도 횟수를 초기화하지 않고, 실제 프레임 표시가 20초간 이어진 뒤 초기화합니다. 프레임 콜백과 재생 품질 카운터로 진행을 확인하며, 사용자 정지·탐색·숨겨진 탭을 영상 멈춤으로 처리하지 않습니다. 복구는 사라진 영상을 복원하거나 지연된 프레임을 최신 영상으로 표시하지 않습니다.
+
+Hls.js는 뒤쪽 버퍼 6초, 목표 버퍼 8초(최대 12초), 최대 따라잡기 속도 1.25배를 사용합니다. 자동 재생이 거부되면 명시적인 재생 버튼을 표시하며, 401·403은 자동 재시도하지 않습니다. 화면 해제 시 확인 요청·타이머·프레임 콜백과 Hls.js를 정리합니다. Safari의 기본 HLS도 같은 복구 수명주기를 사용하지만 버퍼 크기는 브라우저가 관리합니다.
+
+`npm run test:source`에 실제 복구 모듈의 가상 시계 시험이 포함됩니다. 브라우저·운영 서버·실제 두 카메라의 연결 결과는 별도 검증 대상입니다. 정적 파일을 빌드한 것만으로 운영 사이트에 적용된 것은 아닙니다.
+
+실제 `CameraVideo`와 Hls.js를 Chromium에서 확인하는 선택 시험은 다음과 같이 실행합니다.
+
+```bash
+cd web
+npm ci
+npm run test:camera:browser
+```
+
+Node.js 22.13 이상, H.264 인코더가 포함된 `ffmpeg`, Chromium이 필요합니다.
+기본 브라우저 경로는 `/usr/bin/chromium`이며, 다른 경로는
+`EASYREP_CHROMIUM=/path/to/chromium npm run test:camera:browser`로 지정합니다.
+로컬 TCP 포트와 headless 브라우저 실행을 허용하는 환경에서 실행하세요.
+시험은 임시 디렉터리의 합성 HLS만 사용하며 실제 Pi·카메라·IR API나 운영 계정에
+접속하지 않습니다. 종료 시 합성 영상과 브라우저 프로필을 제거합니다.
+실제 디코딩 프레임 진행, 503·404·요청 지연 복구, 다른 카메라의 독립 재생,
+사용자 정지 유지, 제한된 재시도와 화면 해제를 확인하도록 구성되어 있습니다.
+이 시험의 성공은 운영 SaaS 배포·로그인·실제 카메라 연결 검증을 대신하지 않습니다.
+
+2026-11-26 Raspberry Pi의 Chromium에서 위 시험 8개가 통과했습니다. 실제
+`CameraVideo`를 빌드한 번들과 Hls.js로 합성 영상 두 개의 디코딩 프레임 진행을
+확인했습니다. 503·404·시간 초과 복구, 다른 영상의 독립 재생, 정지 유지,
+자동 재생 거부 후 명시적 재생, 재시도 제한, 화면 해제 정리를 검사했으며
+느린 재확인 간격은 30.005초였습니다. 운영 SaaS에 배포한 결과는 아닙니다.

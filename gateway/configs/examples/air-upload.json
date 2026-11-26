@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "endpoint": "https://easyrep.kro.kr/v1/edge/air",
+  "token_env": "HABITAT_CLOUD_TOKEN",
+  "interval_s": 5,
+  "timeout_s": 5,
+  "retry_max_s": 60
+}

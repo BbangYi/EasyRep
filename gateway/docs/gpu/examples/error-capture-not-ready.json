@@ -1,0 +1,6 @@
+{
+  "detail": {
+    "code": "capture_not_ready",
+    "message": "Some files have not been verified"
+  }
+}

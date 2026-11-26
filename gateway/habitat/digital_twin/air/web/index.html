@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HabitatOS · 실시간 공기 온도</title>
+  <style>
+    :root{color-scheme:light dark;--bg:#f5f7f8;--panel:#fff;--fg:#183342;--muted:#5a6d78;--line:#d8e1e6;--accent:#126856;--warn:#9a5900;--danger:#b63131;--low:#328bda;--mid:#f1cc4c;--high:#d93d37}
+    @media(prefers-color-scheme:dark){:root{--bg:#152027;--panel:#1d2a32;--fg:#edf3f5;--muted:#b0c1cb;--line:#43545e;--accent:#7ed3b9;--warn:#ffc56c;--danger:#ff9d9d;--low:#56a1e3;--mid:#f2ce5e;--high:#ee6861}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,'Malgun Gothic',sans-serif}main{max-width:1040px;margin:0 auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}h1{font-size:26px;margin:0}h2{font-size:18px;margin:0}p{margin:8px 0}.muted{color:var(--muted)}.small{font-size:13px}.numbers{font-variant-numeric:tabular-nums}.status{margin:18px 0;padding:12px 16px;border-left:4px solid var(--warn);background:var(--panel)}.status[data-state="live"]{border-color:var(--accent)}.status[data-state="offline"],.status[data-state="disconnected"],.status[data-state="held"]{border-color:var(--danger)}.status strong{display:block}.sensor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.sensor{padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.sensor .value{font-size:28px;font-weight:600}.sensor .unit{font-size:16px}.view{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}.controls{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between}.field{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}.field:first-child{flex:0 1 280px}select,button,input{font:inherit}select,button{color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:8px 12px;min-height:44px}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}input[type="range"]{width:100%;min-height:32px;accent-color:var(--accent)}.stage{height:510px;position:relative;width:100%;margin-top:6px}canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}canvas:active{cursor:grabbing}.stage svg{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;overflow:visible}.stage text{font:14px system-ui,'Malgun Gothic',sans-serif;fill:var(--fg)}.stage[data-held="true"] canvas{opacity:.45}.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:32px;pointer-events:none}.empty[hidden]{display:none}.rotate{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ramp{height:12px;margin-top:16px;background:linear-gradient(to right,var(--low),var(--mid),var(--high));border-radius:3px}.range-labels{display:flex;justify-content:space-between;margin:4px 0 12px;font-size:14px}.legend{font-size:14px;margin:12px 0 0}.metadata{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:16px;font-size:14px;color:var(--muted)}details{margin-top:20px}summary{cursor:pointer}ul{padding-left:22px}.error{color:var(--danger)}
+    @media(max-width:560px){main{padding:12px}h1{font-size:22px}.sensor-grid{gap:6px}.sensor{padding:10px 8px}.sensor .value{font-size:22px}.sensor .small{font-size:12px}.view{padding:12px}.stage{height:380px}.field:first-child{flex:1}.controls{gap:10px}.metadata{display:block}.metadata span{display:block}}
+  </style>
+</head>
+<body>
+<main id="air-app">
+  <header><div><div class="small muted">HabitatOS</div><h1>사육장 공기 온도 · 3D 추정</h1></div><span class="numbers muted" id="cage">연결 확인 중</span></header>
+  <div class="metadata numbers" aria-label="연결 대상과 데이터 출처"><strong id="source-mode">출처 확인 중</strong><span id="source-host">연결 서버 —</span><label id="cage-picker" hidden>사육장 <select id="cage-select" aria-label="조회할 사육장"></select></label></div>
+  <section class="status" id="status" data-state="waiting" aria-live="polite"><strong id="status-title">BB6 측정값 대기</strong><span id="status-detail" class="small">저장된 기록과 새 측정값을 확인하고 있습니다.</span></section>
+  <div class="sensor-grid" aria-label="공기 온도 센서 측정값">
+    <section class="sensor"><div class="small muted">T1 · 천장 SHT</div><div><span class="value numbers" id="T1">—</span> <span class="unit">°C</span></div></section>
+    <section class="sensor"><div class="small muted">T2 · ㄱ DS18B20</div><div><span class="value numbers" id="T2">—</span> <span class="unit">°C</span></div></section>
+    <section class="sensor"><div class="small muted">T3 · ㄷ DS18B20</div><div><span class="value numbers" id="T3">—</span> <span class="unit">°C</span></div></section>
+  </div>
+  <section class="view" aria-label="사육장 전체 부피의 온도 추정">
+    <div class="controls">
+      <label class="field">표시 방식<select id="method"><option value="field">흐름 반영 + 센서 보정</option><option id="baseline-option" value="baseline">기존 거리 보간</option></select></label>
+      <label class="field">불투명도 <span class="numbers" id="opacity-label">68%</span><input id="opacity" type="range" min="20" max="95" value="68"></label>
+    </div>
+    <div class="stage" id="stage" data-held="false">
+      <canvas id="volume" role="img" aria-label="공기 온도 추정의 3D 부피. 드래그 또는 아래 회전 버튼으로 방향을 바꿉니다.">브라우저가 3D 표시를 지원해야 합니다.</canvas>
+      <svg id="overlay" aria-hidden="true"></svg>
+      <div class="empty muted" id="empty">저장된 기록 또는 새 측정값을 불러오면 온도 추정이 표시됩니다.</div>
+    </div>
+    <div class="rotate"><button id="left" type="button" aria-label="왼쪽으로 회전">↶ 회전</button><button id="right" type="button" aria-label="오른쪽으로 회전">회전 ↷</button><span class="small muted">드래그하여 회전 · 20 × 20 × 30cm</span></div>
+    <div class="ramp" aria-hidden="true"></div><div class="range-labels numbers" aria-label="온도 색 척도"><span id="range-low">—</span><span id="range-mid">—</span><span id="range-high">—</span></div>
+    <p class="legend">점은 센서 실측값, 반투명 공간은 온도 추정입니다.</p>
+    <p class="small error" id="render-error" role="alert"></p>
+  </section>
+  <div class="metadata numbers"><span id="sample-time">측정 시각 —</span><span id="sample-count">유효 수신 0회</span></div>
+  <div class="metadata numbers"><span id="source-age">측정 후 —</span><span id="receipt-age">수신 후 —</span></div>
+  <details><summary>센서 위치와 추정 조건</summary><ul id="positions"></ul><p class="small muted">원점은 안쪽 앞·왼쪽 바닥입니다. 기본 센서 높이와 순환 흐름은 설치 전 가정이며, 실제 설치 위치는 설정에서 바꿀 수 있습니다. 공기 온도 화면에는 카메라가 필요하지 않습니다.</p></details>
+</main>
+<script src="/app.js" defer></script>
+</body>
+</html>

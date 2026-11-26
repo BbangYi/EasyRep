@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "cage_id": "CAGE-001",
+  "capture_id": "6d9b312f-7a63-4c6e-8542-9c341ef75a30",
+  "status": "uploading",
+  "verified_file_ids": [],
+  "missing_file_ids": [
+    "20a74936-20cb-455b-94d5-ea688fe477de",
+    "ff57ce98-2578-46a4-9adf-e27bdfad6461",
+    "c0af3c9d-edc6-488d-81d9-66b3dd240c7e"
+  ]
+}

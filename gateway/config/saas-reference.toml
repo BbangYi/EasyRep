@@ -1,0 +1,18 @@
+# Local development receiver. This is not a Pi gateway configuration.
+database = "data/saas-reference.sqlite3"
+
+[[gateways]]
+site_id = "STORE-001"
+gateway_id = "PI-001"
+cage_ids = ["CAGE-001", "CAGE-002", "CAGE-003"]
+token_env = "HABITAT_CLOUD_TOKEN"
+allow_simulation = true
+camera_cages = { RGB-001 = "CAGE-001", RGB-002 = "CAGE-002", RGB-003 = "CAGE-003" }
+
+# Optional LOCAL DEVELOPMENT viewer; production uses its web login/ACL.
+# [[viewers]]
+# site_id = "STORE-001"
+# gateway_id = "PI-001"
+# cage_ids = ["CAGE-001"]
+# camera_cages = { RGB-001 = "CAGE-001" }
+# token_env = "HABITAT_VIDEO_VIEWER_TOKEN"

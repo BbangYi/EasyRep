@@ -1,0 +1,19 @@
+# Copy outside the source tree, then supply HABITAT_GPU_TOKEN in the service environment.
+storage_dir = "var/data/gpu"
+host = "127.0.0.1"
+port = 8100
+
+[[credentials]]
+site_id = "STORE-001"
+gateway_id = "PI-001"
+cage_ids = ["CAGE-001"]
+token_env = "HABITAT_GPU_TOKEN"
+
+[limits]
+max_files_per_capture = 500
+max_file_bytes = 20971520
+max_capture_bytes = 2147483648
+max_concurrent_jobs = 1
+
+[backend]
+name = "not_configured"

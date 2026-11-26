@@ -57,13 +57,34 @@ sha256sum --check SHA256SUMS
 
 위 값은 스케일된 검증 손실로, 섭씨 온도 오차나 습도 오차를 직접 나타내지 않습니다. 실측 데이터 성능은 아직 확인되지 않았습니다. 자세한 데이터 분할과 원래 수치는 [학습 보고서](training_report.json)를 참고하세요.
 
+
+## 합성 데이터 평가 결과
+
+2026년 11월 26일, Gateway 코드와 가중치를 각각 고정한 뒤 `--evaluate --check`를 실행했습니다. 1·2·3개 온도 센서 모델을 각각 **합성 테스트 구간 2,352개**로 평가했고, 모델 로딩과 가상 제어 조건을 포함한 8가지 검사는 `PASS`였습니다.
+
+아래는 **3센서 모델**의 평균 절대 오차(MAE)입니다. `%p`는 상대습도의 퍼센트포인트입니다.
+
+| 예측 시점 | 공기 온도 MAE | 상대습도 MAE |
+| --- | ---: | ---: |
+| 5분 | 0.0429 °C | 0.2961 %p |
+| 10분 | 0.0501 °C | 0.3538 %p |
+| 30분 | 0.0728 °C | 0.5834 %p |
+| 60분 | 0.1048 °C | 1.0235 %p |
+
+이 수치는 현재 Gateway의 가상 환경에서 얻은 합성 테스트 결과입니다. **실제 사육장의 온습도 정확도나 물·전력 절감 효과를 보장하지 않습니다.**
+
+- 환경: GitHub Actions Ubuntu 26.04.1, CPU, Python 3.10.22, NumPy 1.26.4
+- 코드: Gateway 커밋 [`2f87006`](https://github.com/BbangYi/EasyRep/commit/2f87006b02e3afa26cd660c7103c4c14acc54452)
+- 모델: [`c332f71`](https://github.com/BbangYi/EasyRep/tree/c332f71686992222867895e1554435fca17a9501/models/environment-mlp/2026-10-01)의 가중치와 보고서
+- 확인 범위: 세 모델의 로딩·합성 예측, 가상 입력·동작 조건, 파일 무결성. CUDA 실행, 실물 GPIO·펌프·밸브, 동물 적합성, Pi·SaaS 연동은 이번에 검사하지 않았습니다.
+- [평가 실행 로그](https://github.com/BbangYi/EasyRep/actions/runs/45836594258)
+
 ## Gateway·GPU 연동 상태
 
 - 가중치와 학습 보고서의 해시는 GPU 데스크탑 원본 및 GitHub에 저장된 파일과 각각 대조했습니다.
-- 확인한 Gateway 브랜치의 학습·추론 코드와 설정은 **학습 보고서에 기록된 당시 파일과 해시가 다릅니다**. 해시가 다르다는 사실만으로 호환 불가라고 단정할 수는 없으며, 모델 로딩과 추론을 별도로 검증해야 합니다.
+- 확인한 Gateway 코드와 설정은 **학습 보고서에 기록된 당시 파일과 해시가 다릅니다**. 이번 CPU 합성 평가에서 세 모델의 로딩과 추론은 통과했지만, 학습 당시 파일과 동일하다는 뜻은 아닙니다. CUDA와 실제 환경은 별도 확인이 필요합니다.
 - Gateway 코드는 `HABITAT_ENV_MODEL_DIR` 환경 변수로 모델 디렉터리를 지정합니다. 운영·평가 파일은 저장소 밖의 실행 디렉터리에서 관리하고, Pi·GPU·SaaS의 설정은 각 환경에 맞게 구성하세요.
 - 두 브랜치를 통합할 때 Gateway 쪽 모델 명세와 README의 **원본 확인 대기** 상태를 갱신해야 합니다.
-
 
 ### 추론 코드와 함께 검증하기
 
@@ -75,12 +96,12 @@ cd gateway
 python3 experiments/environment_sim/predictive_misting.py --evaluate --check
 ```
 
-이 명령은 합성 데이터로 평가·검사를 실행하고 `prediction_results.json`과 `prediction_checks.json`을 모델 폴더에 기록합니다. **이번 업로드에서는 이 명령을 실행하지 않았으므로**, Gateway 코드와 가중치의 호환성이나 실행 성공을 확인한 것은 아닙니다.
+이 명령은 합성 데이터로 평가·검사를 실행하고 `prediction_results.json`과 `prediction_checks.json`을 모델 폴더에 기록합니다. 위의 합성 데이터 평가는 격리된 임시 폴더에서 이 명령을 실행한 결과입니다.
 
 <details>
 <summary>학습 당시 파일과 Gateway 브랜치의 SHA-256 비교</summary>
 
-비교한 Gateway 커밋: [`58d7a7b`](https://github.com/BbangYi/EasyRep/commit/58d7a7bcff44226ad0c437948f8e4232f63ce885)
+비교한 Gateway 커밋: [`2f87006`](https://github.com/BbangYi/EasyRep/commit/2f87006b02e3afa26cd660c7103c4c14acc54452)
 
 | 파일 | 학습 당시 보고서 | Gateway 브랜치 |
 | --- | --- | --- |

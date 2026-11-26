@@ -1,0 +1,57 @@
+{
+  "source": "SYNTHETIC_ONLY",
+  "trained_at": "2026-10-01T09:20:53.187361+00:00",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 4060",
+  "torch": "2.1.2+cu118",
+  "architecture": "210-128-128-240 tanh MLP; 30-min history + 60-min candidate actions",
+  "split": {
+    "train_episode_seeds": [
+      100,
+      179
+    ],
+    "validation_episode_seeds": [
+      1000,
+      1011
+    ],
+    "test_episode_seeds": [
+      2000,
+      2011
+    ],
+    "closed_loop_seeds": [
+      3000,
+      3005
+    ]
+  },
+  "future_inputs": "candidate actions only; no future weather, sensors or hidden plant state",
+  "source_sha256": "547efea658c3ae3870cee9b5eca4d4defe1921777a545feab64e37956f9c629c",
+  "config_sha256": "2d2f282603cc921c4e1e40ef060696a8861ada1b7cdb783d4639be1dc826c178",
+  "selection": "minimum validation loss, test set not used for selection",
+  "duration_seconds": 10.53,
+  "models": [
+    {
+      "sensors": 3,
+      "train_windows": 15680,
+      "validation_windows": 2352,
+      "selected_epoch": 105,
+      "validation_scaled_mse": 0.003773339092731476,
+      "weights_sha256": "7d56293563fff144e8887051d9a83220b6b617b79e66a9fd3708b5bdef82fd3f"
+    },
+    {
+      "sensors": 2,
+      "train_windows": 15680,
+      "validation_windows": 2352,
+      "selected_epoch": 120,
+      "validation_scaled_mse": 0.0038529031444340944,
+      "weights_sha256": "3d5fa74a6799652c41ac082974152763d0fc3d7b71280a99e80095e5fd6ffc1a"
+    },
+    {
+      "sensors": 1,
+      "train_windows": 15680,
+      "validation_windows": 2352,
+      "selected_epoch": 109,
+      "validation_scaled_mse": 0.007908192463219166,
+      "weights_sha256": "6e992f3aa59939e57d1d7e249ee4388e5044e0113c1c37fe55a6da0177eb0038"
+    }
+  ]
+}

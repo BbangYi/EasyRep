@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "cage_id": "CAGE-001",
+  "capture_id": "6d9b312f-7a63-4c6e-8542-9c341ef75a30",
+  "geometry_revision": 1,
+  "placement_revision": 1,
+  "captured_at": "2026-09-18T08:00:00+00:00",
+  "capture_method": "multiview_rgb",
+  "files": [
+    {
+      "file_id": "20a74936-20cb-455b-94d5-ea688fe477de",
+      "name": "image-001.jpg",
+      "size_bytes": 1024,
+      "sha256": "29930e416313c891eeb9e50d79bbb8ea9b8788c99d375c24c01272b3057cfd8d",
+      "captured_at": "2026-09-18T08:00:00+00:00"
+    },
+    {
+      "file_id": "ff57ce98-2578-46a4-9adf-e27bdfad6461",
+      "name": "image-002.jpg",
+      "size_bytes": 1024,
+      "sha256": "59c47fc35b705636bb4988d8e3c21bdf1b2242d8c12b488bfbe297d400162425",
+      "captured_at": "2026-09-18T08:00:00+00:00"
+    },
+    {
+      "file_id": "c0af3c9d-edc6-488d-81d9-66b3dd240c7e",
+      "name": "image-003.jpg",
+      "size_bytes": 1024,
+      "sha256": "f8e197caba44ec367d4661d128d49d535755e99f0229b5feceade8fd25a36b87",
+      "captured_at": "2026-09-18T08:00:00+00:00"
+    }
+  ]
+}

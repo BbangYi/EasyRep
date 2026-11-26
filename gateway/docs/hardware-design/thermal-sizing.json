@@ -1,0 +1,121 @@
+{
+  "status": "assumption_based_sensitivity_not_measured",
+  "gross_volume_l": 12.0,
+  "envelope_area_m2": 0.32,
+  "assumptions": {
+    "effective_u_w_m2_k": [
+      3,
+      6
+    ],
+    "external_air_changes_per_hour": [
+      10,
+      60
+    ],
+    "moisture_change_g_h": [
+      1,
+      5
+    ],
+    "solar_load": "excluded; no direct sunlight",
+    "door_opening": "excluded from steady state",
+    "insulation_benefit": "not credited"
+  },
+  "summer_32_to_26_c": [
+    {
+      "wall_w": 5.76,
+      "ventilation_w": 0.24,
+      "moisture_w": 0.68,
+      "other_w": 1,
+      "total_w": 7.68,
+      "with_30_percent_margin_w": 9.98
+    },
+    {
+      "wall_w": 11.52,
+      "ventilation_w": 1.44,
+      "moisture_w": 3.39,
+      "other_w": 2,
+      "total_w": 18.35,
+      "with_30_percent_margin_w": 23.85
+    }
+  ],
+  "summer_stress_35_to_26_c": [
+    {
+      "wall_w": 8.64,
+      "ventilation_w": 0.36,
+      "moisture_w": 0.68,
+      "other_w": 1,
+      "total_w": 10.68,
+      "with_30_percent_margin_w": 13.88
+    },
+    {
+      "wall_w": 17.28,
+      "ventilation_w": 2.16,
+      "moisture_w": 3.39,
+      "other_w": 2,
+      "total_w": 24.83,
+      "with_30_percent_margin_w": 32.28
+    }
+  ],
+  "winter_18_to_24_c": [
+    {
+      "wall_w": 5.76,
+      "ventilation_w": 0.24,
+      "moisture_w": 0.68,
+      "other_w": 2,
+      "total_w": 8.68,
+      "with_30_percent_margin_w": 11.28
+    },
+    {
+      "wall_w": 11.52,
+      "ventilation_w": 1.44,
+      "moisture_w": 3.39,
+      "other_w": 5,
+      "total_w": 21.35,
+      "with_30_percent_margin_w": 27.75
+    }
+  ],
+  "winter_stress_10_to_24_c": [
+    {
+      "wall_w": 13.44,
+      "ventilation_w": 0.56,
+      "moisture_w": 0.68,
+      "other_w": 2,
+      "total_w": 16.68,
+      "with_30_percent_margin_w": 21.68
+    },
+    {
+      "wall_w": 26.88,
+      "ventilation_w": 3.36,
+      "moisture_w": 3.39,
+      "other_w": 5,
+      "total_w": 38.63,
+      "with_30_percent_margin_w": 50.22
+    }
+  ],
+  "dewpoint_at_26_c": {
+    "60": 17.6,
+    "70": 20.1,
+    "80": 22.3,
+    "90": 24.2
+  },
+  "recirculation_for_20_w_at_5_k_l_min": 200,
+  "recirculation_for_25_w_at_5_k_l_min": 250,
+  "hot_side_example": {
+    "qc_w": 25,
+    "tec_input_w": 50,
+    "qh_w": 75,
+    "room_c": 32,
+    "target_hot_c": 45,
+    "total_hot_side_thermal_resistance_k_w": 0.173
+  },
+  "thermal_supply_budget": {
+    "tec_driver_input_cap_w": 60,
+    "heater_cap_w": 30,
+    "fans_w": 5,
+    "logic_and_conversion_w": 6,
+    "normal_cooling_w": 71,
+    "normal_heating_w": 41,
+    "both_outputs_fault_case_w": 101,
+    "reference_supply_w": 102,
+    "note": "Simultaneous heating/cooling requires a hardware interlock; 101 W has no design margin."
+  }
+}

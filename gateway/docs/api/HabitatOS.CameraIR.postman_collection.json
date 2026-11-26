@@ -1,0 +1,373 @@
+{
+  "info": {
+    "name": "HabitatOS Camera + IR — existing Gateway 0.4.24",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Use folder 01 for read-only verification. Set gateway_base_url per store and keep keys in local/private variables; do not export filled secrets. Postman must retain the normal cookie jar. Login uses Bearer; all other requests use cookies. A control key grants view and control over configured cages. Folder 03 changes physical IR outputs and is disabled by default with a one-use confirmation gate. Use manual Send, not unattended collection runs; requires pm.execution.skipRequest support. No script sends another request and no imported example automatically turns IR on. Clear csrf_token and keys before exporting. SaaS integration uses its own authorized backend proxy, not browser access to Pi. This collection does not deploy cameras or alter the running server."
+  },
+  "variable": [
+    {
+      "key": "gateway_base_url",
+      "value": "https://habitat-pi.tail292da2.ts.net",
+      "type": "string"
+    },
+    {
+      "key": "viewer_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "control_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrf_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cage_id",
+      "value": "CAGE-001",
+      "type": "string"
+    },
+    {
+      "key": "top_camera_id",
+      "value": "RGB-001",
+      "type": "string"
+    },
+    {
+      "key": "front_camera_id",
+      "value": "CAGE-001-FRONT",
+      "type": "string"
+    },
+    {
+      "key": "ir_confirmation",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Read-only verification (start here)",
+      "item": [
+        {
+          "name": "Login with viewer key",
+          "request": {
+            "method": "POST",
+            "url": "{{gateway_base_url}}/camera/session",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{viewer_key}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"csrf_token\", \"\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List cameras and freshness",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/api/cameras",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        },
+        {
+          "name": "Read IR status (no output change)",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/api/ir/{{cage_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        },
+        {
+          "name": "TOP current HLS playlist",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/hls/{{top_camera_id}}/index.m3u8",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        },
+        {
+          "name": "FRONT current HLS playlist",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/hls/{{front_camera_id}}/index.m3u8",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 — Control login and capability (no output change)",
+      "item": [
+        {
+          "name": "Login with separate control key",
+          "request": {
+            "method": "POST",
+            "url": "{{gateway_base_url}}/camera/session",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{control_key}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"csrf_token\", \"\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read control session and store CSRF",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/control/session",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"csrf_token\", \"\");",
+                  "if (pm.response.code === 200) {",
+                  "  const session = pm.response.json();",
+                  "  if (session.can_control && typeof session.csrf_token === \"string\") {",
+                  "    pm.collectionVariables.set(\"csrf_token\", session.csrf_token);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read IR state before any command",
+          "request": {
+            "method": "GET",
+            "url": "{{gateway_base_url}}/camera/api/ir/{{cage_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 — PHYSICAL IR commands (disabled until explicit one-use confirmation)",
+      "item": [
+        {
+          "name": "PHYSICAL ACTION — Continuous ON",
+          "request": {
+            "method": "POST",
+            "url": "{{gateway_base_url}}/camera/api/ir/{{cage_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Habitat-CSRF",
+                "value": "{{csrf_token}}"
+              }
+            ],
+            "description": "Manual Send only after authorized physical testing. In collection variables, set ir_confirmation to IR ON <cage_id> or IR OFF <cage_id>. It is cleared before this request. Otherwise this request is skipped. Requires Postman with pm.execution.skipRequest support. HTTP 202 is acceptance, not measured illumination. Do not retry ON automatically.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"on\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const confirmation = pm.collectionVariables.get(\"ir_confirmation\");",
+                  "pm.collectionVariables.set(\"ir_confirmation\", \"\");",
+                  "const action = JSON.parse(pm.request.body.raw).action.toUpperCase();",
+                  "const expected = \"IR \" + action + \" \" + pm.variables.get(\"cage_id\");",
+                  "if (confirmation !== expected) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PHYSICAL ACTION — ON for 10 seconds",
+          "request": {
+            "method": "POST",
+            "url": "{{gateway_base_url}}/camera/api/ir/{{cage_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Habitat-CSRF",
+                "value": "{{csrf_token}}"
+              }
+            ],
+            "description": "Manual Send only after authorized physical testing. In collection variables, set ir_confirmation to IR ON <cage_id> or IR OFF <cage_id>. It is cleared before this request. Otherwise this request is skipped. Requires Postman with pm.execution.skipRequest support. HTTP 202 is acceptance, not measured illumination. Do not retry ON automatically.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"on\",\n  \"seconds\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const confirmation = pm.collectionVariables.get(\"ir_confirmation\");",
+                  "pm.collectionVariables.set(\"ir_confirmation\", \"\");",
+                  "const action = JSON.parse(pm.request.body.raw).action.toUpperCase();",
+                  "const expected = \"IR \" + action + \" \" + pm.variables.get(\"cage_id\");",
+                  "if (confirmation !== expected) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PHYSICAL ACTION — OFF",
+          "request": {
+            "method": "POST",
+            "url": "{{gateway_base_url}}/camera/api/ir/{{cage_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Habitat-CSRF",
+                "value": "{{csrf_token}}"
+              }
+            ],
+            "description": "Manual Send only after authorized physical testing. In collection variables, set ir_confirmation to IR ON <cage_id> or IR OFF <cage_id>. It is cleared before this request. Otherwise this request is skipped. Requires Postman with pm.execution.skipRequest support. HTTP 202 is acceptance, not measured illumination. Do not retry ON automatically.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"off\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const confirmation = pm.collectionVariables.get(\"ir_confirmation\");",
+                  "pm.collectionVariables.set(\"ir_confirmation\", \"\");",
+                  "const action = JSON.parse(pm.request.body.raw).action.toUpperCase();",
+                  "const expected = \"IR \" + action + \" \" + pm.variables.get(\"cage_id\");",
+                  "if (confirmation !== expected) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 — End this client session",
+      "item": [
+        {
+          "name": "Logout (does not turn IR off)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{gateway_base_url}}/camera/session",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}

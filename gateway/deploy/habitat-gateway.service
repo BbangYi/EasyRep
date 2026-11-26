@@ -1,0 +1,27 @@
+[Unit]
+Description=HabitatOS Store Edge Gateway
+After=network.target mosquitto.service
+
+[Service]
+Type=simple
+DynamicUser=yes
+SupplementaryGroups=video
+StateDirectory=habitat-gateway
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/habitat-gateway
+EnvironmentFile=/etc/habitat-gateway/gateway.env
+EnvironmentFile=/opt/habitat-gateway/current/release.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/habitat-gateway/current/venv/bin/python -m habitat_gateway --config /etc/habitat-gateway/gateway.toml
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

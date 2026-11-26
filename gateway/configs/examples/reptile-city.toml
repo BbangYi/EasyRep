@@ -1,0 +1,219 @@
+# Hardware arrival profile. Engineering test bands, not species care settings.
+site_id = "STORE-001"
+gateway_id = "PI-001"
+transport = "mqtt"
+database = "/var/lib/habitat-gateway/gateway.sqlite3"
+hardware_outputs_enabled = false
+
+[server]
+host = "127.0.0.1"
+port = 8000
+
+[mqtt]
+host = "127.0.0.1"
+port = 8883
+username = "habitat-gateway"
+tls_ca = "/etc/mosquitto/certs/habitat.crt"
+
+[cloud]
+enabled = true
+endpoint = "https://habitatos.kro.kr/v1/edge/sync"
+
+# Enable after deploying the receiver and setting live_stream on a bound camera.
+[video_upload]
+enabled = false
+endpoint = "https://habitatos.kro.kr/v1/edge/video"
+token_env = "HABITAT_CLOUD_TOKEN"
+
+# Optional /camera IR controls; scope only already commissioned IR nodes.
+# Provision the same-user loopback worker and separate control key first.
+[camera_ir]
+enabled = false
+endpoint = "http://127.0.0.1:8093"
+token_env = "HABITAT_IR_BRIDGE_TOKEN"
+cage_ids = []
+
+[environment]
+enabled = true
+base_url = "https://gpu.example.invalid"
+timeout_s = 25
+storage_dir = "/var/lib/habitat-gateway/environment"
+
+[[environment.targets]]
+cage_id = "CAGE-001"
+sensor_ids = ["T1", "RH1", "T2", "T3"]
+humidity_band = [45,55]
+temperature_band = [23, 29]
+
+[[environment.targets]]
+cage_id = "CAGE-002"
+sensor_ids = ["T1", "RH1", "T2", "T3"]
+humidity_band = [60,70]
+temperature_band = [23, 29]
+
+[[environment.targets]]
+cage_id = "CAGE-003"
+sensor_ids = ["T1", "RH1", "T2", "T3"]
+humidity_band = [75,85]
+temperature_band = [23, 29]
+
+[[cages]]
+id = "CAGE-001"
+node_id = "ESP32-001"
+# No physical output until the separate mist controller is commissioned.
+actuators = [{id = "mister", max_on_s = 5, cooldown_s = 180, required_sensors = ["RH1"]}]
+policies = []
+
+[[cages.sensors]]
+id = "T1"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "RH1"
+unit = "percent_rh"
+min_value = 0
+max_value = 100
+
+[[cages.sensors]]
+id = "T2"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "T3"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages]]
+id = "CAGE-002"
+node_id = "ESP32-002"
+# No physical output until the separate mist controller is commissioned.
+actuators = [{id = "mister", max_on_s = 5, cooldown_s = 180, required_sensors = ["RH1"]}]
+policies = []
+
+[[cages.sensors]]
+id = "T1"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "RH1"
+unit = "percent_rh"
+min_value = 0
+max_value = 100
+
+[[cages.sensors]]
+id = "T2"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "T3"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages]]
+id = "CAGE-003"
+node_id = "ESP32-003"
+# No physical output until the separate mist controller is commissioned.
+actuators = [{id = "mister", max_on_s = 5, cooldown_s = 180, required_sensors = ["RH1"]}]
+policies = []
+
+[[cages.sensors]]
+id = "T1"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "RH1"
+unit = "percent_rh"
+min_value = 0
+max_value = 100
+
+[[cages.sensors]]
+id = "T2"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cages.sensors]]
+id = "T3"
+unit = "degC"
+min_value = -20
+max_value = 60
+
+[[cameras]]
+id = "CAGE-001-TOP"
+cage_id = "CAGE-001"
+source_type = "http_mjpeg"
+view = "top"
+expected_model = "DFR1172 / CSI RGB camera"
+# Set url to the actual local /video_feed address after installing camera firmware.
+# No URL means waiting for binding, never a simulated image.
+live_stream = true
+width = 640
+height = 480
+interval_s = 30
+
+[[cameras]]
+id = "CAGE-001-FRONT"
+cage_id = "CAGE-001"
+source_type = "http_mjpeg"
+view = "front"
+expected_model = "DFR1172 / CSI RGB camera"
+live_stream = true
+width = 640
+height = 480
+interval_s = 30
+
+[[cameras]]
+id = "CAGE-002-TOP"
+cage_id = "CAGE-002"
+source_type = "http_mjpeg"
+view = "top"
+expected_model = "DFR1172 / CSI RGB camera"
+live_stream = true
+width = 640
+height = 480
+interval_s = 30
+
+[[cameras]]
+id = "CAGE-002-FRONT"
+cage_id = "CAGE-002"
+source_type = "http_mjpeg"
+view = "front"
+expected_model = "DFR1172 / CSI RGB camera"
+live_stream = true
+width = 640
+height = 480
+interval_s = 30
+
+[[cameras]]
+id = "CAGE-003-TOP"
+cage_id = "CAGE-003"
+source_type = "http_mjpeg"
+view = "top"
+expected_model = "DFR1172 / CSI RGB camera"
+live_stream = true
+width = 640
+height = 480
+interval_s = 30
+
+[[cameras]]
+id = "CAGE-003-FRONT"
+cage_id = "CAGE-003"
+source_type = "http_mjpeg"
+view = "front"
+expected_model = "DFR1172 / CSI RGB camera"
+live_stream = true
+width = 640
+height = 480
+interval_s = 30

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "arduino_cli_versions": ["1.5.1", "1.5.2-rc.1"],
+  "core": {"id": "esp32:esp32", "version": "3.3.12"},
+  "fqbn": "esp32:esp32:esp32:FlashSize=4M,FlashMode=dio,FlashFreq=40",
+  "libraries": {
+    "Adafruit SHT31 Library": "2.2.2",
+    "Adafruit BusIO": "1.17.4",
+    "OneWire": "2.3.8",
+    "PubSubClient": "2.8"
+  }
+}

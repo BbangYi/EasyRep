@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "source_provenance",
+  "model_family": "thermal_air_estimation",
+  "learned_weights_required": false,
+  "field_accuracy_validated": false,
+  "source_paths_relative_to": "repository_root",
+  "components": [
+    {
+      "id": "air_spatial_estimator",
+      "source": "gateway/habitat/digital_twin/air/model.py",
+      "entrypoint": "gateway/apps/air/__main__.py",
+      "configuration_example": "gateway/configs/examples/air-viewer.json",
+      "technical_report": "gateway/docs/air-temperature-technical-report.md",
+      "dimensions_m": [0.2, 0.2, 0.3],
+      "input_channels_in_model_order": ["T2", "T3", "T1"],
+      "state_grid_spacing_m": 0.02,
+      "display_grid_spacing_m": 0.01,
+      "method": [
+        "inverse_distance_squared_initialization",
+        "assumed_advection_diffusion_and_wall_heat_exchange",
+        "gaussian_sensor_residual_correction",
+        "trilinear_display_interpolation"
+      ],
+      "output_kind": "spatial_temperature_estimate",
+      "limitations": [
+        "The current implementation supports only the declared dimensions.",
+        "Airflow and boundary conditions are assumptions; sensor positions need physical verification.",
+        "No humidity field, learned weights, future forecast or animal body temperature is produced."
+      ]
+    },
+    {
+      "id": "thermal_sizing_sensitivity",
+      "source": "gateway/docs/hardware-design/thermal-sizing.py",
+      "dimensions_m": [0.2, 0.2, 0.3],
+      "method": ["wall_heat_load", "ventilation_heat_load", "latent_heat_load", "dewpoint", "power_budget"],
+      "output_kind": "assumption_based_engineering_sensitivity",
+      "limitations": ["Unoccupied prototype assumptions; not measurements, equipment commissioning or husbandry limits."]
+    }
+  ],
+  "manifest_usage": "Documentation index only; runtime uses the canonical source and its existing configuration."
+}

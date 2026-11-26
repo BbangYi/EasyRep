@@ -1,0 +1,110 @@
+# SIMULATION ONLY. Thresholds below demonstrate control logic, not animal-care guidance.
+site_id = "STORE-001"
+gateway_id = "PI-001"
+transport = "simulated"
+database = "var/data/simulation.sqlite3"
+command_ttl_s = 10
+clock_tolerance_s = 2
+
+[[cages]]
+id = "CAGE-001"
+node_id = "ESP32-001"
+geometry_revision = 1
+placement_revision = 1
+stale_after_s = 15
+
+[[cages.sensors]]
+id = "T1"
+unit = "degC"
+min_value = -20
+max_value = 60
+[[cages.sensors]]
+id = "T2"
+unit = "degC"
+min_value = -20
+max_value = 60
+[[cages.sensors]]
+id = "T3"
+unit = "degC"
+min_value = -20
+max_value = 60
+[[cages.sensors]]
+id = "T4"
+unit = "degC"
+min_value = -20
+max_value = 60
+[[cages.sensors]]
+id = "T5"
+unit = "degC"
+min_value = -20
+max_value = 60
+[[cages.sensors]]
+id = "RH1"
+unit = "percent_rh"
+min_value = 0
+max_value = 100
+[[cages.sensors]]
+id = "LUX1"
+unit = "lux"
+min_value = 0
+max_value = 65535
+
+[[cages.actuators]]
+id = "heater"
+max_on_s = 30
+cooldown_s = 5
+required_sensors = ["T1", "T2", "T3", "T4", "T5"]
+guards = [
+  {sensor_id = "T1", maximum = 28},
+  {sensor_id = "T2", maximum = 28},
+  {sensor_id = "T3", maximum = 28},
+  {sensor_id = "T4", maximum = 28},
+  {sensor_id = "T5", maximum = 28}
+]
+[[cages.actuators]]
+id = "fan"
+max_on_s = 60
+cooldown_s = 5
+required_sensors = ["T1", "T2", "T3", "T4", "T5"]
+guards = [
+  {sensor_id = "T1", minimum = 18},
+  {sensor_id = "T2", minimum = 18},
+  {sensor_id = "T3", minimum = 18},
+  {sensor_id = "T4", minimum = 18},
+  {sensor_id = "T5", minimum = 18}
+]
+[[cages.actuators]]
+id = "mister"
+max_on_s = 5
+cooldown_s = 60
+required_sensors = ["RH1"]
+guards = [{sensor_id = "RH1", maximum = 85}]
+[[cages.actuators]]
+id = "light"
+max_on_s = 300
+cooldown_s = 0
+required_sensors = ["T1", "LUX1"]
+guards = [{sensor_id = "T1", maximum = 28}]
+
+# All cages start in MANUAL mode, including after a process restart.
+[[cages.policies]]
+actuator_id = "heater"
+sensor_id = "T3"
+direction = "below"
+on_threshold = 22
+off_threshold = 24
+duration_s = 20
+[[cages.policies]]
+actuator_id = "fan"
+sensor_id = "T3"
+direction = "above"
+on_threshold = 26
+off_threshold = 25
+duration_s = 30
+[[cages.policies]]
+actuator_id = "mister"
+sensor_id = "RH1"
+direction = "below"
+on_threshold = 55
+off_threshold = 65
+duration_s = 3

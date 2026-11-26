@@ -1,0 +1,33 @@
+{
+  "mode": "SYNTHETIC_ONLY",
+  "profile_note": "Engineering examples, not animal husbandry recommendations. Species, age, enclosure, day/night and wet/dry cycles require separate validated profiles.",
+  "profiles": [
+    {"id": "A", "name": "시험 A · 낮은 습도 목표", "humidity_band": [45,55], "temperature_band": [23,29]},
+    {"id": "B", "name": "시험 B · 중간 습도 목표", "humidity_band": [60,70], "temperature_band": [23,29]},
+    {"id": "C", "name": "시험 C · 높은 습도 목표", "humidity_band": [75,85], "temperature_band": [23,29]}
+  ],
+  "species_requested": ["크레스티드 게코", "레오파드 게코", "거북이(세부 종 미지정)", "개구리(세부 종 미지정)", "기타 파충류·양서류"],
+  "air_exchange_per_min": 0.03,
+  "mist_rh_gain_per_second": 1.3,
+  "evaporation_fraction_per_min": 0.25,
+  "candidate_pulse_seconds": [1,2,3],
+  "max_pulse_seconds": 3,
+  "cooldown_minutes": 3,
+  "temperature_penalty": 10,
+  "water_cost": 0.1,
+  "baseline_pulse_seconds": 3,
+  "scheduled_interval_minutes": 10,
+  "assumed_nozzle_ml_per_second": 0.8,
+  "assumed_active_watts": 40,
+  "calibration_note": "RUN ceiling 3s follows SAFE R15 Pico firmware. Plant coefficients, nozzle flow and active power remain unmeasured assumptions. Pump free-flow rating is not nozzle discharge; hardware operation remains blocked.",
+  "hardware_reference": {
+    "source_workbook": "HabitatOS_750000원_나머지_구매목록 (2).xlsx",
+    "sheet": "나머지 구매분",
+    "pump": "B17:D17 SEAFLO SFDP2-010-040-21 x1",
+    "valve": "B18:D18 KCC KAB21-02-2-DC24V x3",
+    "nozzle": "B19:D19 PWT CN EZ UNC10-24M x3",
+    "driver": "B30:D30 DFRobot DFR0457 x5; CUT/RUN x2 + valves x3",
+    "protection": "B31:D32 SAFE R15 + RSF43Y100RF x2",
+    "purchase_status": "Source lists pump/valves as pending design confirmation; not delivered/validated hardware."
+  }
+}

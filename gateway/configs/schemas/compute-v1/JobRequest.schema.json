@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:JobRequest",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "site_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "gateway_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Gateway Id",
+      "type": "string"
+    },
+    "cage_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Cage Id",
+      "type": "string"
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "capture_id": {
+      "format": "uuid",
+      "title": "Capture Id",
+      "type": "string"
+    },
+    "kind": {
+      "const": "3dgs",
+      "default": "3dgs",
+      "title": "Kind",
+      "type": "string"
+    },
+    "preset": {
+      "const": "preview",
+      "default": "preview",
+      "title": "Preset",
+      "type": "string"
+    }
+  },
+  "required": [
+    "site_id",
+    "gateway_id",
+    "cage_id",
+    "job_id",
+    "capture_id"
+  ],
+  "title": "JobRequest",
+  "type": "object"
+}

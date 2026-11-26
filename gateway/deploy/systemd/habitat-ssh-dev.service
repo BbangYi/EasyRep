@@ -1,0 +1,14 @@
+[Unit]
+Description=HabitatOS external SSH development listener
+After=network.target ssh.service
+
+[Service]
+Type=simple
+ExecStartPre=/usr/sbin/sshd -t -f /etc/habitat-gateway/ssh-dev.conf
+ExecStart=/usr/sbin/sshd -D -e -f /etc/habitat-gateway/ssh-dev.conf
+Restart=on-failure
+RestartSec=5
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

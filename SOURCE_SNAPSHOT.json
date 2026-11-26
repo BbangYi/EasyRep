@@ -12,6 +12,33 @@
       "baseline_commit": "00aa98d5796c5c022add3726cd89fda2d6792ff6",
       "includes_uncommitted_changes": true,
       "files": 172
+    },
+    "gateway": {
+      "source": "Curated HabitatOS Pi/GPU working source",
+      "version": "0.4.29",
+      "baseline_commit": null,
+      "includes_uncommitted_changes": true,
+      "files": 288,
+      "file_manifest_sha256": "884322f926acee8ba2360b7ffd47e870deb5c29991c8c380f331b6c4283dfc2a",
+      "file_manifest_algorithm": "SHA-256 of compact UTF-8 JSON sorted by relative path; object keys sorted; fields bytes,path,sha256",
+      "scope": "Runtime code, public firmware source, build tools, tests, examples and selected documentation",
+      "redactions": "Operational addresses, personal paths and SSH fingerprints in public documentation use examples",
+      "excluded": "Secrets, live configuration, runtime data, binaries, whole-flash backups, historical handoff archives",
+      "changes_during_import": [
+        "Current README and ignore rules",
+        "Public-example BB6 build helper and pinned dependencies with tests",
+        "Release exporter includes BB6 build helpers",
+        "Release test fixture includes existing IR protocol document",
+        "Public documentation redaction",
+        "Environment contract test verifies current TOP/FRONT pair per enclosure instead of obsolete single-camera count"
+      ]
+    },
+    "environment_models": {
+      "source": "Gateway thermal-air and synthetic environment MLP source",
+      "thermal_learned_weights_required": false,
+      "mlp_artifacts_status": "pending_original_desktop_verification",
+      "mlp_complete_inference_bundle": false
     }
-  }
+  },
+  "updated_at": "2026-11-26"
 }

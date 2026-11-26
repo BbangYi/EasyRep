@@ -1,0 +1,12 @@
+{
+  "cage_id": "CAGE-001",
+  "dimensions_m": [0.2, 0.2, 0.3],
+  "payload_temperature_unit": "degC",
+  "temperature_limits_c": [-20, 60],
+  "stale_after_s": 30,
+  "sensors": {
+    "T1": {"label": "SHT 천장", "xyz_m": [0.1, 0.1, 0.28]},
+    "T2": {"label": "DS18B20 ㄱ", "xyz_m": [0.02, 0.02, 0.08]},
+    "T3": {"label": "DS18B20 ㄷ", "xyz_m": [0.18, 0.18, 0.08]}
+  }
+}

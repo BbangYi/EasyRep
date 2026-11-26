@@ -1,0 +1,1359 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HabitatOS Camera and IR Gateway API",
+    "version": "0.4.24",
+    "description": "Developer handoff for the existing Pi /camera routes, verified against HabitatOS 0.4.24. This is a documented integration surface, not a new machine-token API. The login key is used ONLY by POST /camera/session; subsequent requests require the returned cookies. A viewer key can read media/state. A distinct control key grants both viewing and IR control; it has gateway-wide scope over configured cages, not per-user/per-cage SaaS authorization. Use a SaaS BACKEND proxy: keep keys, cookie jars and CSRF tokens server-side; enforce organization/site/cage permissions and request-origin/CSRF policy in SaaS before calling Pi. Do not embed the Pi /camera page: it uses CSP frame-ancestors none and SameSite=Strict cookies; browser cross-origin fetch/iframe integration is not supported. Keep the gateway base URL and device mappings in per-site configuration. The default host and identifiers are current-site examples only. The gateway reads each DFR1172 stream once; SaaS consumes gateway HLS, never opens another reader to the camera LAN URL. Session cookies are bearer capabilities: logout deletes the caller cookie jar but does not revoke copied cookies until expiry and does not turn IR off. POST IR returns 202 Accepted, not measured lighting confirmation. No hardware outputs are changed by importing this specification."
+  },
+  "servers": [
+    {
+      "url": "https://{gateway_host}",
+      "description": "Per-site gateway reachable by the SaaS backend; configure and verify network access.",
+      "variables": {
+        "gateway_host": {
+          "default": "habitat-pi.tail292da2.ts.net",
+          "description": "Replace with the intended store gateway host; no trailing path."
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Session"
+    },
+    {
+      "name": "Cameras"
+    },
+    {
+      "name": "IR"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "CameraKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Viewer or separate control key, supplied only to POST /camera/session. Store on the SaaS server; do not send to browsers."
+      },
+      "CameraSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "habitat_camera_session",
+        "description": "Obtained from login. HttpOnly; SameSite=Strict; Path=/camera; Max-Age=43200; Secure on HTTPS."
+      },
+      "CameraControlSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "habitat_camera_control_session",
+        "description": "Only returned when login uses the control key. Required together with viewer cookie and CSRF for commands."
+      },
+      "CameraCSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Habitat-CSRF",
+        "description": "From GET /camera/control/session using the same cookie jar. Refresh after login. Never a standalone authorization credential."
+      }
+    },
+    "schemas": {
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "expires_in"
+        ],
+        "properties": {
+          "expires_in": {
+            "type": "integer",
+            "const": 43200
+          }
+        }
+      },
+      "ControlSession": {
+        "type": "object",
+        "required": [
+          "can_control",
+          "csrf_token"
+        ],
+        "properties": {
+          "can_control": {
+            "type": "boolean"
+          },
+          "csrf_token": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Non-null only for a valid control session."
+          }
+        }
+      },
+      "CameraInventory": {
+        "type": "object",
+        "required": [
+          "site_id",
+          "gateway_id",
+          "cage_ids",
+          "cameras"
+        ],
+        "properties": {
+          "site_id": {
+            "type": "string",
+            "examples": [
+              "STORE-001"
+            ]
+          },
+          "gateway_id": {
+            "type": "string",
+            "examples": [
+              "PI-001"
+            ]
+          },
+          "cage_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cameras": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Camera"
+            }
+          }
+        }
+      },
+      "Camera": {
+        "type": "object",
+        "required": [
+          "id",
+          "cage_id",
+          "source_type",
+          "view",
+          "width",
+          "height",
+          "configured_fps",
+          "live_stream",
+          "status",
+          "fresh",
+          "age_s",
+          "last_segment_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "examples": [
+              "RGB-001",
+              "CAGE-001-FRONT"
+            ]
+          },
+          "cage_id": {
+            "type": "string",
+            "examples": [
+              "CAGE-001"
+            ]
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "uvc",
+              "http_mjpeg",
+              "rtsp_h264"
+            ]
+          },
+          "view": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "top",
+              "front",
+              null
+            ],
+            "description": "Configured role; verify physical mounting separately."
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 160,
+            "maximum": 1920
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 120,
+            "maximum": 1080
+          },
+          "configured_fps": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Capture configuration, not measured delivered FPS."
+          },
+          "live_stream": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "description": "live, waiting_fresh_video, waiting_network_camera_binding, waiting_usb_port_binding, live_stream_disabled, or a camera worker status/error. Treat unrecognized values as unavailable."
+          },
+          "fresh": {
+            "type": "boolean",
+            "description": "Fresh playable segments are available from a healthy reader."
+          },
+          "age_s": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "last_segment_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "description": "Configured camera and live readiness. Includes configured placeholders; no upstream URL, device path or credential is exposed."
+      },
+      "IRCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "seconds": {
+            "anyOf": [
+              {
+                "maximum": 900,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seconds",
+            "description": "null/omitted = continuous ON; integer seconds = timed ON. OFF needs only action."
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "IRCommand",
+        "type": "object",
+        "description": "IR light output command. Omit seconds or use null for continuous ON; integer 1–900 for timed ON. Do not send seconds with OFF. Boolean, string and fractional seconds are rejected. No toggle action or additional fields. The configured worker max_on_seconds may be lower than 900; consult status. Accepted commands are asynchronous."
+      },
+      "IRStatus": {
+        "properties": {
+          "cage_id": {
+            "title": "Cage Id",
+            "type": "string"
+          },
+          "configured": {
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "offline",
+              "locked",
+              "off",
+              "starting",
+              "on",
+              "stopping",
+              "error",
+              "unconfigured"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "online": {
+            "title": "Online",
+            "type": "boolean"
+          },
+          "outputs_locked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputs Locked"
+          },
+          "gpio_requested_on": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpio Requested On",
+            "description": "Latest board-reported GPIO request, not proof of IR light output. null when no current board report."
+          },
+          "actual_ir_on": {
+            "title": "Actual Ir On",
+            "type": "null",
+            "description": "Always null: no optical or current feedback exists. Never display this as measured illumination."
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean",
+            "description": "The Pi worker is running a control operation; this is not a measurement of light output."
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "continuous",
+                  "timed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mode",
+            "description": "continuous or timed while an operation is active; null while idle."
+          },
+          "remaining_s": {
+            "anyOf": [
+              {
+                "maximum": 900,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining S",
+            "description": "null during continuous ON; countdown for timed operation; 0 while idle/stopping."
+          },
+          "max_on_seconds": {
+            "maximum": 900,
+            "minimum": 1,
+            "title": "Max On Seconds",
+            "type": "integer",
+            "description": "Per-request timed limit, not a lifetime limit on continuous mode."
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ack_failed",
+                  "cage_not_configured",
+                  "clock_unsynchronized",
+                  "command_rejected",
+                  "control_busy",
+                  "controller_error",
+                  "hello_expired",
+                  "invalid_command",
+                  "invalid_hello",
+                  "mqtt_disconnected",
+                  "no_live_hello",
+                  "outputs_locked",
+                  "sequence_error",
+                  "session_changed",
+                  "state_unavailable",
+                  "worker_stopping"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Sanitized worker error code or null; private transport diagnostics are never returned."
+          }
+        },
+        "required": [
+          "cage_id",
+          "configured",
+          "status",
+          "online",
+          "outputs_locked",
+          "gpio_requested_on",
+          "actual_ir_on",
+          "active",
+          "mode",
+          "remaining_s",
+          "max_on_seconds",
+          "error"
+        ],
+        "title": "IRState",
+        "type": "object",
+        "description": "IR worker state. status=on and gpio_requested_on=true report control intent/board state only. A known cage without configured IR returns configured=false, status=unconfigured and HTTP 200. A successful command returns this same schema with HTTP 202; poll GET to observe progress.",
+        "examples": [
+          {
+            "cage_id": "CAGE-001",
+            "configured": true,
+            "status": "off",
+            "online": true,
+            "outputs_locked": false,
+            "gpio_requested_on": false,
+            "actual_ir_on": null,
+            "active": false,
+            "mode": null,
+            "remaining_s": 0,
+            "max_on_seconds": 900,
+            "error": null
+          },
+          {
+            "cage_id": "CAGE-001",
+            "configured": true,
+            "status": "on",
+            "online": true,
+            "outputs_locked": false,
+            "gpio_requested_on": true,
+            "actual_ir_on": null,
+            "active": true,
+            "mode": "continuous",
+            "remaining_s": null,
+            "max_on_seconds": 900,
+            "error": null
+          }
+        ]
+      },
+      "APIError": {
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string",
+            "enum": [
+              "ack_failed",
+              "cage_not_configured",
+              "cage_not_found",
+              "camera_control_required",
+              "camera_login_required",
+              "camera_not_found",
+              "camera_viewer_not_configured",
+              "clock_unsynchronized",
+              "command_rejected",
+              "control_busy",
+              "controller_error",
+              "hello_expired",
+              "invalid_camera_key",
+              "invalid_command",
+              "invalid_csrf",
+              "invalid_hello",
+              "ir_bridge_unavailable",
+              "ir_not_configured",
+              "mqtt_disconnected",
+              "no_live_hello",
+              "outputs_locked",
+              "segment_expired",
+              "sequence_error",
+              "session_changed",
+              "state_unavailable",
+              "waiting_fresh_video",
+              "worker_stopping"
+            ]
+          }
+        },
+        "description": "Stable public error code; do not expose backend private logs."
+      },
+      "HTTPValidationError": {
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "properties": {
+          "detail": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "properties": {
+          "loc": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ]
+            }
+          },
+          "msg": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "input": {},
+          "ctx": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/camera/session": {
+      "post": {
+        "operationId": "createCameraSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Exchange viewer/control key for 12-hour cookies",
+        "security": [
+          {
+            "CameraKey": []
+          }
+        ],
+        "description": "No request body. Preserve all Set-Cookie values in a cookie jar. Control-key login sets both cookies. Viewer-key login clears a previous control cookie. New login changes the CSRF token. HTTPS is required for remote use.",
+        "responses": {
+          "200": {
+            "description": "Session created; one or two active cookies are set.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "One header per cookie. Keep both habitat_camera_session and habitat_camera_control_session when present; do not join them with commas."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "invalid_camera_key: wrong/missing/malformed Authorization header.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "camera_viewer_not_configured.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCameraSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Clear cookies in this client",
+        "security": [],
+        "description": "No authentication required. Deletes both cookies. Does not revoke copied cookies, stop the IR worker or turn off an accepted continuous/timed command.",
+        "responses": {
+          "204": {
+            "description": "Cookies deleted; empty response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/camera/control/session": {
+      "get": {
+        "operationId": "getCameraControlSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Read control capability and session-bound CSRF token",
+        "security": [
+          {
+            "CameraSession": []
+          }
+        ],
+        "description": "A viewer-only session returns 200 with can_control=false and csrf_token=null. A control session returns the header token used for IR commands.",
+        "responses": {
+          "200": {
+            "description": "Capability for this cookie jar.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlSession"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "camera_viewer_not_configured: viewer authentication is unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/camera/api/cameras": {
+      "get": {
+        "operationId": "listCameraStreams",
+        "tags": [
+          "Cameras"
+        ],
+        "summary": "Discover registered cameras grouped by cage",
+        "security": [
+          {
+            "CameraSession": []
+          }
+        ],
+        "description": "Use site_id/gateway_id to verify expected gateway identity, then match cage_id and configured view. Show disconnected/waiting states rather than replaying stale footage. This endpoint does not register or deploy cameras.",
+        "responses": {
+          "200": {
+            "description": "Camera inventory and freshness.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CameraInventory"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "camera_viewer_not_configured: viewer authentication is unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/camera/hls/{camera_id}/index.m3u8": {
+      "get": {
+        "operationId": "getCameraPlaylist",
+        "tags": [
+          "Cameras"
+        ],
+        "summary": "Read the current live HLS playlist",
+        "security": [
+          {
+            "CameraSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "camera_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "RGB-001"
+          }
+        ],
+        "description": "Cookies are required for playlist AND segment requests. Segment references are relative: {session_id}/{sequence}.ts. Preserve the same path hierarchy in the SaaS proxy or rewrite references to authorized SaaS media endpoints. Preserve media sequence and session IDs. Never return cached old media as live after a 503.",
+        "responses": {
+          "200": {
+            "description": "Fresh HLS media playlist.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/vnd.apple.mpegurl": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "camera_not_found: unknown camera or live streaming disabled.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "waiting_fresh_video: no fresh healthy-reader media; or camera_viewer_not_configured.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/camera/hls/{camera_id}/{session_id}/{sequence}.ts": {
+      "get": {
+        "operationId": "getCameraSegment",
+        "tags": [
+          "Cameras"
+        ],
+        "summary": "Read a fresh MPEG-TS segment from the current session",
+        "security": [
+          {
+            "CameraSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "camera_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "RGB-001"
+          },
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "b2274a89-8f2a-4e2b-a1be-309f3ba80d44"
+          },
+          {
+            "name": "sequence",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 12
+          }
+        ],
+        "description": "Copy session_id and sequence from the current playlist; do not generate or reuse expired paths. For an expired segment, refresh the playlist instead of retrying the same URL forever.",
+        "responses": {
+          "200": {
+            "description": "MPEG-TS bytes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "video/mp2t": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "camera_not_found or segment_expired.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid integer sequence path parameter.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "waiting_fresh_video or camera_viewer_not_configured.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/camera/api/ir/{cage_id}": {
+      "get": {
+        "operationId": "getIRStatus",
+        "tags": [
+          "IR"
+        ],
+        "summary": "Read IR light controller state without changing outputs",
+        "security": [
+          {
+            "CameraSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "CAGE-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Controller state; unconfigured is an ordinary state for a known cage.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "cage_not_found (not registered) or cage_not_configured (worker does not serve this cage).",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Worker conflict, including control_busy or outputs_locked; POST can also return ir_not_configured.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "invalid_command from worker, or request validation error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/APIError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "camera_viewer_not_configured, ir_bridge_unavailable, no_live_hello, worker_stopping, state_unavailable or another sanitized worker error. Poll state; never blindly retry ON.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "requestIRCommand",
+        "tags": [
+          "IR"
+        ],
+        "summary": "PHYSICAL ACTION: request continuous/timed ON or OFF",
+        "security": [
+          {
+            "CameraSession": [],
+            "CameraControlSession": [],
+            "CameraCSRF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "CAGE-001"
+          }
+        ],
+        "description": "Requires BOTH cookies AND X-Habitat-CSRF, all from the same control login. If Origin is sent, it must equal the Pi request origin; SaaS backends should not forward browser Origin. 202 means asynchronous acceptance only. Poll GET status; actual_ir_on is always null. Continuous ON continues until explicit OFF, interruption or worker failure; closing the browser or logging out does not stop it. Pi renews the short MCU lease while active; loss of renewal makes the MCU turn OFF after the current lease (up to about 5 seconds). Reconnection does not automatically restart ON. A timeout may occur after acceptance: never automatically replay ON. Reconcile status first. Explicit OFF may be retried with bounded backoff. There is no idempotency-key contract.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IRCommand"
+              },
+              "examples": {
+                "continuousOn": {
+                  "value": {
+                    "action": "on"
+                  }
+                },
+                "timedOn": {
+                  "value": {
+                    "action": "on",
+                    "seconds": 10
+                  }
+                },
+                "off": {
+                  "value": {
+                    "action": "off"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Command accepted; execution may still be starting or stopping. No optical measurement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "camera_login_required: missing, invalid or expired viewing cookie.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "camera_control_required: no valid control cookie; invalid_csrf: missing/mismatched header or Origin.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "cage_not_found (not registered) or cage_not_configured (worker does not serve this cage).",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Worker conflict, including control_busy or outputs_locked; POST can also return ir_not_configured.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "invalid_command from worker, or request validation error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/APIError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "camera_viewer_not_configured, ir_bridge_unavailable, no_live_hello, worker_stopping, state_unavailable or another sanitized worker error. Poll state; never blindly retry ON.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                },
+                "description": "Do not cache private state or media."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

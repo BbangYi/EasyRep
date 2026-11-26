@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:CaptureManifest",
+  "$defs": {
+    "CaptureFile": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "format": "uuid",
+          "title": "File Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "maximum": 20971520,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id",
+        "name",
+        "size_bytes",
+        "sha256",
+        "captured_at"
+      ],
+      "title": "CaptureFile",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "site_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "gateway_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Gateway Id",
+      "type": "string"
+    },
+    "cage_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Cage Id",
+      "type": "string"
+    },
+    "capture_id": {
+      "format": "uuid",
+      "title": "Capture Id",
+      "type": "string"
+    },
+    "geometry_revision": {
+      "minimum": 1,
+      "title": "Geometry Revision",
+      "type": "integer"
+    },
+    "placement_revision": {
+      "minimum": 1,
+      "title": "Placement Revision",
+      "type": "integer"
+    },
+    "captured_at": {
+      "format": "date-time",
+      "title": "Captured At",
+      "type": "string"
+    },
+    "capture_method": {
+      "const": "multiview_rgb",
+      "default": "multiview_rgb",
+      "title": "Capture Method",
+      "type": "string"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/CaptureFile"
+      },
+      "maxItems": 500,
+      "minItems": 3,
+      "title": "Files",
+      "type": "array"
+    }
+  },
+  "required": [
+    "site_id",
+    "gateway_id",
+    "cage_id",
+    "capture_id",
+    "geometry_revision",
+    "placement_revision",
+    "captured_at",
+    "files"
+  ],
+  "title": "CaptureManifest",
+  "type": "object"
+}

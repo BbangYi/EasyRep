@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0.0",
+  "worker_id": null,
+  "os": null,
+  "project_path": null,
+  "python_version": null,
+  "gpu_name": null,
+  "vram_total_bytes": null,
+  "cuda_available": false,
+  "tailscale_ipv4": null,
+  "tailscale_dns_name": null,
+  "gpu_base_url": null,
+  "api_local_url": "http://127.0.0.1:8100",
+  "token_env": "HABITAT_GPU_TOKEN",
+  "token_configured": false,
+  "token_value_included": false,
+  "authorized_gateway": {
+    "site_id": "STORE-001",
+    "gateway_id": "PI-001",
+    "cage_ids": ["CAGE-001"]
+  },
+  "backend": "not_configured",
+  "reconstruction_ready": false,
+  "checks": {
+    "local_api": "not_run",
+    "gpu_compute": "not_run",
+    "real_3dgs": "not_run",
+    "pi_to_gpu": "not_run",
+    "saas_delivery": "not_run"
+  },
+  "openapi_file": null,
+  "start_command": null,
+  "remaining_requirements": []
+}

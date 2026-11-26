@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "model_artifact_plan",
+  "model_family": "environment_action_conditioned_mlp",
+  "artifact_status": "pending_original_verification",
+  "complete_inference_bundle": false,
+  "training_source": "SYNTHETIC_ONLY",
+  "field_validated": false,
+  "hardware_execution_allowed": false,
+  "source_paths_relative_to": "repository_root",
+  "sources": {
+    "plant_training_numpy_inference_evaluation": "gateway/experiments/environment_sim/predictive_misting.py",
+    "cuda_inference_worker": "gateway/experiments/environment_sim/gpu_predict.py",
+    "simulation_configuration": "gateway/experiments/environment_sim/simulation_config.json",
+    "gpu_api": "gateway/habitat/gpu/environment_api.py",
+    "pi_contract_and_client": "gateway/habitat/compute/environment.py",
+    "offline_dataset_builder": "gateway/habitat/compute/environment_dataset.py",
+    "offline_prediction_evaluator": "gateway/habitat/compute/environment_evaluation.py",
+    "timing_contract": "gateway/habitat/control/r15_timing.py"
+  },
+  "architecture": {
+    "layers": [210, 128, 128, 240],
+    "hidden_activation": "tanh",
+    "history_minutes": 30,
+    "forecast_minutes": 60,
+    "sampling_interval_seconds": 60,
+    "history_columns": ["air_C", "humidity_pct", "surface_hot_C", "surface_cool_C", "executed_pulse_seconds"],
+    "future_inputs": "candidate pulse actions only",
+    "output_channels": ["air_C", "humidity_pct", "surface_hot_C", "surface_cool_C"],
+    "temperature_sensor_variants": [1, 2, 3],
+    "cuda_serving_variant": 3,
+    "action_feature_scale_seconds": 6
+  },
+  "runtime": {
+    "model_directory_environment_variable": "HABITAT_ENV_MODEL_DIR",
+    "default_project_relative_directory": "var/models/environment_sim",
+    "required_serving_files": ["model_3sensors.npz", "training_report.json"],
+    "runtime_model_id_rule": "synthetic-mlp- followed by the first 12 characters of the three-sensor weight SHA-256"
+  },
+  "artifact_version": null,
+  "files": {
+    "model_1sensors.npz": {"status": "pending_original_verification", "sha256": null, "bytes": null},
+    "model_2sensors.npz": {"status": "pending_original_verification", "sha256": null, "bytes": null},
+    "model_3sensors.npz": {"status": "pending_original_verification", "sha256": null, "bytes": null},
+    "training_report.json": {"status": "pending_original_verification", "sha256": null, "bytes": null}
+  },
+  "required_original_report_fields": [
+    "source", "trained_at", "device", "torch", "architecture", "split", "future_inputs",
+    "source_sha256", "config_sha256", "selection", "models"
+  ],
+  "required_per_model_report_fields": ["sensors", "train_windows", "validation_windows", "selected_epoch", "validation_scaled_mse", "weights_sha256"],
+  "verification_scope": "Expected filenames and architecture were read from source. Original weights and report were absent at the checked Pi paths; their hashes, sizes and training provenance have not been verified.",
+  "manifest_usage": "Documentation and artifact handoff plan only. Null metadata must not be treated as verified hashes or a loadable registry entry."
+}

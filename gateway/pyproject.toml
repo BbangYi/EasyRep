@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "habitat-gateway"
+version = "0.4.29"
+description = "HabitatOS Raspberry Pi gateway and GPU compute service"
+requires-python = ">=3.11"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "paho-mqtt>=2.1,<3", "pydantic>=2.10,<3", "httpx>=0.28,<1", "Pillow>=11,<13"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "jsonschema>=4.23,<5"]
+simulation = ["numpy>=2,<3"]
+air = ["numpy>=2,<3"]
+
+[project.scripts]
+habitat-gateway = "habitat_gateway.__main__:main"
+habitat-compute = "apps.worker.main:main"
+habitat-gpu = "apps.api.__main__:main"
+habitat-air-viewer = "apps.air.__main__:main"
+habitat-ir = "apps.worker.ir_control:main"
+
+[tool.setuptools.packages.find]
+include = ["habitat*", "apps*", "experiments.environment_sim"]
+
+[tool.setuptools.package-data]
+habitat_gateway = ["*.html", "assets/*.webp", "assets/*.js", "assets/*LICENSE.txt"]
+"experiments.environment_sim" = ["simulation_config.json"]
+"habitat.digital_twin.air" = ["web/*.html", "web/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

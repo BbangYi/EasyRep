@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:habitatos:compute:1.0.0:ComputeHealth",
+  "$defs": {
+    "ComputeLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "max_files_per_capture": {
+          "maximum": 500,
+          "minimum": 3,
+          "title": "Max Files Per Capture",
+          "type": "integer"
+        },
+        "max_file_bytes": {
+          "exclusiveMinimum": 0,
+          "maximum": 20971520,
+          "title": "Max File Bytes",
+          "type": "integer"
+        },
+        "max_capture_bytes": {
+          "exclusiveMinimum": 0,
+          "maximum": 2147483648,
+          "title": "Max Capture Bytes",
+          "type": "integer"
+        },
+        "max_concurrent_jobs": {
+          "minimum": 1,
+          "title": "Max Concurrent Jobs",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max_files_per_capture",
+        "max_file_bytes",
+        "max_capture_bytes",
+        "max_concurrent_jobs"
+      ],
+      "title": "ComputeLimits",
+      "type": "object"
+    },
+    "GPUInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Name"
+        },
+        "cuda_available": {
+          "title": "Cuda Available",
+          "type": "boolean"
+        },
+        "vram_total_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vram Total Bytes"
+        },
+        "reconstruction_ready": {
+          "title": "Reconstruction Ready",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "cuda_available",
+        "vram_total_bytes",
+        "reconstruction_ready"
+      ],
+      "title": "GPUInfo",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "service": {
+      "const": "habitat-gpu",
+      "title": "Service",
+      "type": "string"
+    },
+    "api_version": {
+      "const": "1.0.0",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "degraded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "backend": {
+      "enum": [
+        "splatfacto",
+        "mock",
+        "not_configured"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "gpu": {
+      "$ref": "#/$defs/GPUInfo"
+    },
+    "limits": {
+      "$ref": "#/$defs/ComputeLimits"
+    }
+  },
+  "required": [
+    "schema_version",
+    "service",
+    "api_version",
+    "status",
+    "backend",
+    "gpu",
+    "limits"
+  ],
+  "title": "ComputeHealth",
+  "type": "object"
+}

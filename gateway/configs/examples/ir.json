@@ -1,0 +1,8 @@
+{
+  "broker_host": "127.0.0.1",
+  "broker_port": 8883,
+  "ca_file": "/etc/mosquitto/certs/habitat.crt",
+  "topic_base": "habitat/v1/STORE-001/cages/CAGE-001/nodes/ESP32-001",
+  "username_env": "HABITAT_IR_MQTT_USER",
+  "password_env": "HABITAT_IR_MQTT_PASSWORD"
+}

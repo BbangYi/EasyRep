@@ -1,0 +1,68 @@
+{
+  "observed_at": "2026-09-18T11:14:38.959855+00:00",
+  "source_config": "config/simulation.toml",
+  "runtime_process_config_verified": false,
+  "hostname": "habitat-pi",
+  "board": "Raspberry Pi 5 Model B Rev 1.1",
+  "os": "Linux",
+  "architecture": "aarch64",
+  "python_version": "3.13.5",
+  "project_path": "/home/sunjae/Desktop/habitat",
+  "site_id": "STORE-001",
+  "gateway_id": "PI-001",
+  "transport": "simulated",
+  "configured_cages": [
+    {
+      "cage_id": "CAGE-001",
+      "node_id": "ESP32-001",
+      "geometry_revision": 1,
+      "placement_revision": 1
+    }
+  ],
+  "planned_cages": [
+    {
+      "cage_id": "CAGE-001",
+      "node_id": "ESP32-001",
+      "size_cm": [
+        20,
+        20,
+        30
+      ],
+      "in_default_config": true
+    },
+    {
+      "cage_id": "CAGE-002",
+      "node_id": "ESP32-002",
+      "size_cm": [
+        20,
+        20,
+        30
+      ],
+      "in_default_config": false
+    },
+    {
+      "cage_id": "CAGE-003",
+      "node_id": "ESP32-003",
+      "size_cm": [
+        20,
+        20,
+        30
+      ],
+      "in_default_config": false
+    }
+  ],
+  "tailscale_installed": false,
+  "tailscale_ipv4": null,
+  "gpu_client_implemented": true,
+  "gpu_contract_version": "1.0.0",
+  "gpu_target_user_provided": {
+    "ssh_user": "samue",
+    "tailscale_ipv4": "100.100.211.20",
+    "claimed_gpu": "RTX 4060",
+    "verified_this_turn": false
+  },
+  "credentials_included": false,
+  "gpu_client_version": "0.3.0",
+  "gpu_connection_verified": false,
+  "gpu_reconstruction_verified": false
+}

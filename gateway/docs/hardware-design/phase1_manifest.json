@@ -1,0 +1,133 @@
+{
+  "phase_1": "original HWP 12 items + owned Raspberry Pi 5",
+  "phase_2": "XLSX remaining parts after acquisition",
+  "parts": [
+    {
+      "row": 1,
+      "name": "OV5693 5MP USB 카메라 모듈",
+      "seller_model": "SMG-A USB-OV5628-A (Auto Focus / 120°)",
+      "quantity": 3,
+      "purpose": "RGB-001 / 002 / 003",
+      "seller_product_id": "15668138"
+    },
+    {
+      "row": 2,
+      "name": "EFM ipTIME UH505",
+      "quantity": 1,
+      "purpose": "카메라 USB 데이터 허브",
+      "seller_product_id": "compuzone:1042101"
+    },
+    {
+      "row": 3,
+      "name": "ESP32-DEVKITC-32E",
+      "quantity": 3,
+      "purpose": "ESP32-001 / 002 / 003",
+      "seller_product_id": "coupang"
+    },
+    {
+      "row": 4,
+      "name": "DFRobot SEN0331",
+      "quantity": 3,
+      "purpose": "각 노드의 T1·RH1",
+      "seller_product_id": "16069339"
+    },
+    {
+      "row": 5,
+      "name": "Waterproof DS18B20 (ada-381)",
+      "quantity": 6,
+      "purpose": "각 노드의 T2·T3",
+      "seller_product_id": "1192652"
+    },
+    {
+      "row": 6,
+      "name": "SMG-A PCB-0709D",
+      "quantity": 3,
+      "purpose": "노드별 분기 기판",
+      "seller_product_id": "1341724"
+    },
+    {
+      "row": 7,
+      "name": "Raspberry Pi Pico H",
+      "quantity": 1,
+      "purpose": "재고 확인·보관 / 2단계 제어부",
+      "seller_product_id": "14021609"
+    },
+    {
+      "row": 8,
+      "name": "티테크놀로지 케이블타이",
+      "quantity": 1,
+      "purpose": "선 묶음 고정",
+      "seller_product_id": "12511052"
+    },
+    {
+      "row": 9,
+      "name": "CH254 소켓 점퍼 케이블 40P",
+      "quantity": 1,
+      "purpose": "F/F 10cm / 실물 길이 확인",
+      "seller_product_id": "1328410"
+    },
+    {
+      "row": 10,
+      "name": "PROKIT MT-1233C",
+      "quantity": 1,
+      "purpose": "무전원 도통·저항 / DC 전압 검사",
+      "seller_product_id": "15817750"
+    },
+    {
+      "row": 11,
+      "name": "스프링 무연납 SCS7",
+      "quantity": 1,
+      "purpose": "납땜 재료",
+      "seller_product_id": "1089518"
+    },
+    {
+      "row": 12,
+      "name": "전기용 절연테이프",
+      "quantity": 1,
+      "purpose": "배선 절연 보조",
+      "seller_product_id": "9838"
+    }
+  ],
+  "references": [
+    [
+      "최초 HWP",
+      "(캡스톤디자인_랩타일시티) 재료 구매 신청서.hwp — 12개 품목 / 파일명에 (1) 없음"
+    ],
+    [
+      "후속 구매",
+      "HabitatOS_750000원_나머지_구매목록(1).xlsx — 현행 후속 구매 검토본 / 이후 확보 시 작업"
+    ],
+    [
+      "R8 사용자 ZIP",
+      "pin_connections_R8.json — 외부선 16 + 버스 6 + 저항 2. 실물 시험 0회로 기록된 자료"
+    ],
+    [
+      "Espressif J2/J3",
+      "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html"
+    ],
+    [
+      "DFRobot SEN0331",
+      "https://wiki.dfrobot.com/sen0331/"
+    ],
+    [
+      "SHT31 공식 회로",
+      "https://dfimg.dfrobot.com/wiki/21163/SEN0331_sht31-digital-temperature-humidity-sensor_schematics_V1.0.pdf"
+    ],
+    [
+      "Adafruit 381",
+      "https://www.adafruit.com/product/381"
+    ],
+    [
+      "UH505 제조사",
+      "https://www.iptime.com/products/691?pd=3"
+    ],
+    [
+      "HWP 구매품 판매 사양: SMG-A USB-OV5628-A / OV5693 / 5MP / 자동초점 / 120° / USB 2.0 (2026-10-04 확인). Waveshare OV5693(A)와 동일 제품으로 간주하지 않는다.",
+      "https://www.devicemart.co.kr/goods/view?no=15668138"
+    ]
+  ],
+  "pin_map_source": "docs/hardware-design/pin_connections_R8.json",
+  "physical_tests_completed": false,
+  "simulation_result": null,
+  "simulation_result_note": "이전 경로 verification/result.json은 현재 프로젝트에 없어 확인할 수 없음. 다른 날짜·범위의 모의실험 결과로 대체하지 않음."
+}

@@ -8,6 +8,7 @@ import type { AuthSession } from "../lib/habitat/session";
 import { dateTime, type Cage } from "./live-data";
 import { useLiveQuery } from "./use-live-query";
 import { EnclosurePhoto } from "./enclosure-photo";
+import { createCameraPlayback, type PlaybackStatus } from "./camera-playback";
 
 export function EnclosureViewer({
   cage, session, label = "사진·카메라 보기",
@@ -87,6 +88,8 @@ type CameraFeed = { id: string; view: string; fresh: boolean; status: string; pl
 
 function CameraPanel({ base, canControl, csrfToken }: { base: string; canControl: boolean; csrfToken: string }) {
   const query = useLiveQuery<{ cameras: CameraFeed[] }>(base, 8000);
+  // Inventory refreshes may remove media temporarily; they never reset user intent.
+  const [pausedCameras, setPausedCameras] = useState<Record<string, boolean>>({});
   if (!query.data) return <div className="live-camera-empty" role="status">
     <CameraOff size={32} aria-hidden="true" />
     <strong>{query.error ? "카메라를 표시할 수 없습니다" : "카메라 확인 중"}</strong>
@@ -97,53 +100,98 @@ function CameraPanel({ base, canControl, csrfToken }: { base: string; canControl
     <div className="live-camera-grid">
       {query.data.cameras.map((camera) => <section key={camera.id} className="live-camera-feed">
         <h3>{camera.view === "top" ? "천장" : camera.view === "front" ? "전면" : camera.view} <span>{camera.id}</span></h3>
-        {camera.fresh ? <CameraVideo playlist={camera.playlist} /> : <div className="live-camera-empty" role="status">
-          <CameraOff size={28} aria-hidden="true" /><strong>영상 수신 대기</strong>
-          <p>영상이 다시 수신되면 자동으로 표시됩니다.</p>
-        </div>}
+        <CameraVideo playlist={camera.playlist} available={camera.fresh}
+          initiallyPaused={pausedCameras[base + camera.id] ?? false}
+          onPauseIntent={(paused) => setPausedCameras((previous) => previous[base + camera.id] === paused
+            ? previous : { ...previous, [base + camera.id]: paused })} />
       </section>)}
     </div>
     <IrControl base={base} canControl={canControl} csrfToken={csrfToken} />
   </>;
 }
 
-function CameraVideo({ playlist }: { playlist: string }) {
+const PLAYBACK_NOTICE: Record<PlaybackStatus, string> = {
+  connecting: "영상을 연결하고 있습니다.", playing: "", retrying: "최신 영상에 다시 연결하고 있습니다.",
+  waiting: "영상 수신 대기 중입니다. 연결 상태를 주기적으로 확인합니다.",
+  paused: "일시 정지했습니다.", "play-required": "자동 재생이 차단되었습니다. 재생을 눌러주세요.",
+  denied: "영상 조회 권한을 확인해주세요. 로그인 후 다시 연결할 수 있습니다.",
+  unsupported: "이 브라우저는 실시간 영상을 재생할 수 없습니다.",
+};
+
+export function CameraVideo({ playlist, available, initiallyPaused, onPauseIntent }: {
+  playlist: string; available: boolean; initiallyPaused: boolean; onPauseIntent: (paused: boolean) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
+  const controls = useRef<ReturnType<typeof createCameraPlayback> | undefined>(undefined);
+  const intent = useRef({ initiallyPaused, onPauseIntent });
+  const [status, setStatus] = useState<PlaybackStatus>(initiallyPaused ? "paused" : "connecting");
+  const [bootstrapRetry, setBootstrapRetry] = useState(0);
+  useEffect(() => { intent.current = { initiallyPaused, onPauseIntent }; }, [initiallyPaused, onPauseIntent]);
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     let disposed = false;
-    let player: { destroy: () => void } | undefined;
     async function start() {
       try {
+        const url = new URL(playlist, window.location.href);
+        if (url.origin !== window.location.origin) { setStatus("denied"); return; }
         const { default: Hls } = await import("hls.js");
         if (disposed || !video) return;
-        if (Hls.isSupported()) {
-          const hls = new Hls({ liveSyncDurationCount: 2 });
-          player = hls;
-          hls.on(Hls.Events.ERROR, (_, detail) => {
-            if (detail.fatal) setError("영상 연결이 끊겼습니다.");
-          });
-          hls.loadSource(playlist);
-          hls.attachMedia(video);
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = playlist;
-        } else {
-          setError("이 브라우저는 실시간 영상을 재생할 수 없습니다.");
+        const supported = Hls.isSupported();
+        if (!supported && !video.canPlayType("application/vnd.apple.mpegurl")) {
+          setStatus("unsupported"); return;
         }
-      } catch {
-        if (!disposed) setError("영상 재생기를 불러오지 못했습니다.");
-      }
+        controls.current = createCameraPlayback(video, {
+          initiallyPaused: intent.current.initiallyPaused,
+          onStatus: setStatus, onPauseIntent: (paused) => intent.current.onPauseIntent(paused),
+          probe: async (signal) => {
+            const response = await fetch(url, { signal, credentials: "same-origin", cache: "no-store" });
+            await response.body?.cancel();
+            return response.redirected ? 401 : response.status;
+          },
+          connect: (ready, failed) => {
+            if (supported) {
+              const loadPolicy = { default: { maxTimeToFirstByteMs: 4000, maxLoadTimeMs: 8000,
+                timeoutRetry: null, errorRetry: null } };
+              const hls = new Hls({
+                liveSyncDurationCount: 2, liveMaxLatencyDurationCount: 4, maxLiveSyncPlaybackRate: 1.25,
+                liveSyncOnStallIncrease: 0, backBufferLength: 6,
+                maxBufferLength: 8, maxMaxBufferLength: 12, maxBufferSize: 8 * 1024 * 1024,
+                manifestLoadPolicy: loadPolicy, playlistLoadPolicy: loadPolicy, fragLoadPolicy: loadPolicy,
+              });
+              hls.on(Hls.Events.MANIFEST_PARSED, ready);
+              hls.on(Hls.Events.ERROR, (_, detail) => failed({
+                status: detail.response?.code, fatal: detail.fatal, network: detail.type === Hls.ErrorTypes.NETWORK_ERROR,
+              }));
+              hls.loadSource(url.href); hls.attachMedia(video);
+              return { destroy: () => hls.destroy(), suspend: () => hls.stopLoad(), resume: () => hls.startLoad(-1) };
+            }
+            // Safari native HLS uses the same recovery budget and frame watchdog.
+            video.addEventListener("loadedmetadata", ready, { once: true });
+            video.src = url.href; video.load();
+            return { destroy() {
+              video.removeEventListener("loadedmetadata", ready); video.removeAttribute("src"); video.load();
+            } };
+          },
+        });
+      } catch { if (!disposed) setStatus("waiting"); }
     }
-    setError("");
+    const visibility = () => controls.current?.visibility();
+    document.addEventListener("visibilitychange", visibility);
     void start();
-    return () => { disposed = true; player?.destroy(); video.removeAttribute("src"); video.load(); };
-  }, [playlist, retry]);
+    return () => {
+      disposed = true; document.removeEventListener("visibilitychange", visibility);
+      controls.current?.destroy(); controls.current = undefined;
+    };
+  }, [playlist, bootstrapRetry]);
+  const message = PLAYBACK_NOTICE[status] || (!available ? "장치 상태를 다시 확인하고 있습니다." : "");
   return <div className="live-camera-video-wrap">
-    <video ref={videoRef} controls autoPlay muted playsInline onError={() => setError("영상을 재생할 수 없습니다.")} />
-    {error && <div className="live-camera-playback-error" role="status">{error}<button type="button" onClick={() => setRetry((value) => value + 1)}>다시 연결</button></div>}
+    <video ref={videoRef} controls muted playsInline />
+    {message && <div className="live-camera-playback-error" role="status">{message}
+      {(status === "paused" || status === "play-required")
+        ? <button type="button" onClick={() => controls.current?.play()}>재생</button>
+        : status !== "unsupported" && <button type="button" onClick={() => controls.current ? controls.current.retry() : setBootstrapRetry((n) => n + 1)}>다시 연결</button>}
+    </div>}
   </div>;
 }
 

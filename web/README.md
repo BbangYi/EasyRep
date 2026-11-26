@@ -277,3 +277,37 @@ in `server/edge/contracts.py` and the fixtures under `server/edge/fixtures/`.
 Check authenticated ingestion at `/v1/edge/sync`, database persistence, and UI visibility
 with a fresh real sensor sample. Gateway heartbeat alone does not prove sensor freshness.
 Use external device configuration and existing credentials; never commit production values.
+
+## 운영 카메라 재연결
+
+`standalone/enclosure-viewer.tsx`는 API의 `view=top`을 천장, `view=front`를 전면으로 표시합니다. 장치 목록의 `fresh` 변경은 재생기를 다시 만들거나 사용자의 일시 정지를 해제하지 않습니다. 일시적인 목록 조회 실패로 재생기가 제거되어도 같은 패널에서 카메라별 정지 의도를 보존합니다.
+
+`standalone/camera-playback.ts`는 카메라마다 하나의 확인 요청과 복구 타이머를 관리합니다. 404·503·시간 초과는 최신 재생목록으로 다시 연결하며, 1·2·4·8초 재시도 뒤에는 30초 간격으로 확인합니다. 초기 재생목록 성공만으로 재시도 횟수를 초기화하지 않고, 실제 프레임 표시가 20초간 이어진 뒤 초기화합니다. 프레임 콜백과 재생 품질 카운터로 진행을 확인하며, 사용자 정지·탐색·숨겨진 탭을 영상 멈춤으로 처리하지 않습니다. 복구는 사라진 영상을 복원하거나 지연된 프레임을 최신 영상으로 표시하지 않습니다.
+
+Hls.js는 뒤쪽 버퍼 6초, 목표 버퍼 8초(최대 12초), 최대 따라잡기 속도 1.25배를 사용합니다. 자동 재생이 거부되면 명시적인 재생 버튼을 표시하며, 401·403은 자동 재시도하지 않습니다. 화면 해제 시 확인 요청·타이머·프레임 콜백과 Hls.js를 정리합니다. Safari의 기본 HLS도 같은 복구 수명주기를 사용하지만 버퍼 크기는 브라우저가 관리합니다.
+
+`npm run test:source`에 실제 복구 모듈의 가상 시계 시험이 포함됩니다. 브라우저·운영 서버·실제 두 카메라의 연결 결과는 별도 검증 대상입니다. 정적 파일을 빌드한 것만으로 운영 사이트에 적용된 것은 아닙니다.
+
+실제 `CameraVideo`와 Hls.js를 Chromium에서 확인하는 선택 시험은 다음과 같이 실행합니다.
+
+```bash
+cd web
+npm ci
+npm run test:camera:browser
+```
+
+Node.js 22.13 이상, H.264 인코더가 포함된 `ffmpeg`, Chromium이 필요합니다.
+기본 브라우저 경로는 `/usr/bin/chromium`이며, 다른 경로는
+`EASYREP_CHROMIUM=/path/to/chromium npm run test:camera:browser`로 지정합니다.
+로컬 TCP 포트와 headless 브라우저 실행을 허용하는 환경에서 실행하세요.
+시험은 임시 디렉터리의 합성 HLS만 사용하며 실제 Pi·카메라·IR API나 운영 계정에
+접속하지 않습니다. 종료 시 합성 영상과 브라우저 프로필을 제거합니다.
+실제 디코딩 프레임 진행, 503·404·요청 지연 복구, 다른 카메라의 독립 재생,
+사용자 정지 유지, 제한된 재시도와 화면 해제를 확인하도록 구성되어 있습니다.
+이 시험의 성공은 운영 SaaS 배포·로그인·실제 카메라 연결 검증을 대신하지 않습니다.
+
+2026-11-26 Raspberry Pi의 Chromium에서 위 시험 8개가 통과했습니다. 실제
+`CameraVideo`를 빌드한 번들과 Hls.js로 합성 영상 두 개의 디코딩 프레임 진행을
+확인했습니다. 503·404·시간 초과 복구, 다른 영상의 독립 재생, 정지 유지,
+자동 재생 거부 후 명시적 재생, 재시도 제한, 화면 해제 정리를 검사했으며
+느린 재확인 간격은 30.005초였습니다. 운영 SaaS에 배포한 결과는 아닙니다.

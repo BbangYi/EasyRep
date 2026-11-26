@@ -5,11 +5,15 @@ model_dir="$HOME/.local/share/habitat-gpu/models/environment"
 branch="codex/environment-mlp-weights-20261001"
 target="models/environment-mlp/2026-10-01"
 
-if ! command -v gh >/dev/null 2>&1; then
+if command -v gh >/dev/null 2>&1; then
+  gh_cmd=gh
+elif command -v gh.exe >/dev/null 2>&1; then
+  gh_cmd=gh.exe
+else
   printf '%s\n' 'GitHub CLI (gh)를 찾을 수 없습니다. 이 메시지를 Codex에 알려주세요.' >&2
   exit 1
 fi
-login="$(gh api user --jq .login 2>/dev/null || true)"
+login="$("$gh_cmd" api user --jq .login 2>/dev/null | tr -d '\r' || true)"
 if [[ "$login" != 'jaysj0226' ]]; then
   printf '%s\n' "GitHub CLI 계정 확인 실패: ${login:-로그인되지 않음}. jaysj0226 계정이 필요합니다." >&2
   exit 1
@@ -45,7 +49,7 @@ case "$work_dir" in
 esac
 trap 'rm -rf -- "$work_dir"' EXIT
 
-git_auth=(-c credential.helper= -c 'credential.helper=!gh auth git-credential')
+git_auth=(-c credential.helper= -c "credential.helper=!$gh_cmd auth git-credential")
 git "${git_auth[@]}" clone --quiet --no-tags --single-branch --branch "$branch" \
   https://github.com/BbangYi/EasyRep.git "$work_dir/repo"
 cd "$work_dir/repo"
